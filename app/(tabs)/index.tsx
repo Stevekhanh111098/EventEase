@@ -1,10 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Hello World!</Text>
+      {/* Replace the Text with an Image */}
+      <Image
+        source={require('../../logo/logo-color.png')} // Adjust the path to your image
+        style={styles.image} // Style the image as needed
+      />
     </View>
   );
 }
@@ -16,8 +20,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
-  text: {
-    fontSize: 24,
-    color: 'black',
+  image: {
+    width: 200,   // Adjust the width
+    height: 200,  // Adjust the height
+    resizeMode: 'contain', // Ensure the image scales properly
   },
 });
