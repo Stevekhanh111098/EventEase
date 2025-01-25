@@ -1,6 +1,8 @@
 <<<<<<< HEAD
 # EventEase
 
+# Testing to verify connection
+
 npx create-expo-app@latest
 yarn install
 yarn start
