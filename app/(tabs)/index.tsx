@@ -21,8 +21,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   image: {
-    width: 200,   // Adjust the width
-    height: 200,  // Adjust the height
+    width: 300,   // Adjust the width
+    height: 300,  // Adjust the height
     resizeMode: 'contain', // Ensure the image scales properly
   },
 });
