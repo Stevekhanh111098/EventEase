@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, Text } from 'react-native';
+import { Link } from 'expo-router';
 
 export default function HomeScreen() {
   return (
@@ -9,6 +10,7 @@ export default function HomeScreen() {
         source={require('../../logo/logo-color.png')} // Adjust the path to your image
         style={styles.image} // Style the image as needed
       />
+      <Link href="/login">Go to Login Page</Link>
     </View>
   );
 }
@@ -24,5 +26,9 @@ const styles = StyleSheet.create({
     width: 300,   // Adjust the width
     height: 300,  // Adjust the height
     resizeMode: 'contain', // Ensure the image scales properly
+  },
+  link: {
+    color: '#11181C',
+    fontWeight: 'bold',
   },
 });
