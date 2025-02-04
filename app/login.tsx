@@ -1,16 +1,29 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import { Link } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth'; 
 import { auth } from '@/firebase';
+import { useRouter } from "expo-router";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  const handleLogin = () => {
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter email and password.");
+      return;
+    }
+
+    try {
+      // Firebase Authentication
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert("Success", "Login successful!");
+      router.push("/"); // Navigate to home or dashboard
+    } catch (error: any) {
+      Alert.alert("Login Failed", error.message);
+    }
   };
 
   return (
@@ -32,9 +45,8 @@ export default function LoginScreen() {
         secureTextEntry
       />
       <Button title="Login" onPress={handleLogin} />
-      <Text style={styles.signupText}>
-        Don't have an account?{' '}
-        {/*<Link href="/login">Sign up</Link>*/}
+      <Text style={styles.linkText} onPress={() => router.push("/signup")}>
+        Don't have an account? <Text style={styles.link}>Sign up</Text>
       </Text>
     </View>
   );
@@ -68,5 +80,9 @@ const styles = StyleSheet.create({
   link: {
     color: '#11181C',
     fontWeight: 'bold',
+  },
+  linkText: {
+    marginTop: 15,
+    color: "blue",
   },
 });
