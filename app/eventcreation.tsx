@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
+import { View, TextInput, Button, Text, StyleSheet, Alert, Platform, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase"; // Import Firestore
+import DateTimePicker from '@react-native-community/datetimepicker';
+import moment from 'moment';
 
 export default function CreateEventScreen() {
   const [step, setStep] = useState(1);
   const [eventName, setEventName] = useState("");
-  const [eventDate, setEventDate] = useState("");
+  const [eventDate, setEventDate] = useState(new Date());
   const [eventLocation, setEventLocation] = useState("");
   const [eventBudget, setEventBudget] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const router = useRouter();
 
   const handleNext = () => {
@@ -17,12 +20,9 @@ export default function CreateEventScreen() {
       Alert.alert("Error", "Event name is required.");
       return;
     }
-    if (step === 2) {
-      const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-      if (!eventDate.match(dateRegex)) {
-        Alert.alert("Error", "Please enter a valid date (MM/DD/YYYY).");
-        return;
-      }
+    if (step === 2 && !eventDate) {
+      Alert.alert("Error", "Event date is required.");
+      return;
     }
     if (step === 3 && eventLocation.trim() === "") {
       Alert.alert("Error", "Event location is required.");
@@ -35,24 +35,17 @@ export default function CreateEventScreen() {
     setStep(step + 1);
   };
 
-  const formatDateForFirestore = (date: string) => {
-    const [month, day, year] = date.split("/");
-    return `${year}-${month}-${day}`;
+  const formatDateForFirestore = (date: Date) => {
+    return moment(date).format('YYYY-MM-DD');
   };
 
   const handleCreateEvent = async () => {
     console.log('Create Event button clicked'); // Debugging log
-    console.log('Create Event button clicked'); // Debugging log
-    if (!eventBudget || isNaN(Number(eventBudget)) || Number(eventBudget) <= 0) {
-      Alert.alert("Error", "Please enter a budget.");
-      return;
-    }
     if (!eventBudget || isNaN(Number(eventBudget)) || Number(eventBudget) <= 0) {
       Alert.alert("Error", "Please enter a budget.");
       return;
     }
     try {
-      console.log('Saving event to Firestore...');
       console.log('Saving event to Firestore...');
       const docRef = await addDoc(collection(db, "events"), {
         name: eventName,
@@ -62,14 +55,18 @@ export default function CreateEventScreen() {
         createdAt: new Date(),
       });
       Alert.alert("Success", "Event created successfully!");
-      console.log('Navigating to events list...');
       console.log('Event successfully created with ID:', docRef.id);
-      console.log('Navigating to events list...');
       router.push("/events");
     } catch (error) {
       console.error("Firestore Error:", error);
       Alert.alert("Error", "Failed to create event. Try again.");
     }
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date | undefined) => {
+    const currentDate = selectedDate || eventDate;
+    setShowDatePicker(Platform.OS === 'ios');
+    setEventDate(currentDate);
   };
 
   return (
@@ -81,12 +78,23 @@ export default function CreateEventScreen() {
       )}
 
       {step === 2 && (
-        <TextInput
-          style={styles.input}
-          placeholder="Event Date (MM/DD/YYYY)"
-          value={eventDate}
-          onChangeText={setEventDate}
-        />
+        <View>
+          <TextInput
+            style={styles.input}
+            placeholder="Event Date (MM/DD/YYYY)"
+            value={moment(eventDate).format('MM/DD/YYYY')}
+            editable={false}
+          />
+          <Button title="Pick Date" onPress={() => setShowDatePicker(true)} />
+          {showDatePicker && (
+            <DateTimePicker
+              value={eventDate}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+        </View>
       )}
 
       {step === 3 && (
@@ -121,11 +129,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
     alignItems: "center",
+    backgroundColor: '#fff', // Always white background
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 20,
+    color: '#000', // Always black text
   },
   input: {
     height: 40,
@@ -135,6 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    color: '#000', // Always black text
   },
   buttonContainer: {
     flexDirection: "row",
