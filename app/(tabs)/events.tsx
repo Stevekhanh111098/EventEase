@@ -1,15 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons"; // Floating button icon
 
 export default function EventsScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Event List</Text>
-      <Text style={styles.subtitle}>Your created events will appear here.</Text>
+    <View style={[styles.container, colorScheme === 'dark' && styles.darkContainer]}>
+      <Text style={[styles.title, colorScheme === 'dark' && styles.darkText]}>Event List</Text>
+      <Text style={[styles.subtitle, colorScheme === 'dark' && styles.darkText]}>Your created events will appear here.</Text>
 
       {/* Floating "Create Event" Button */}
       <TouchableOpacity style={styles.fab} onPress={() => router.push("/eventcreation")}>
@@ -24,10 +25,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: '#fff', // Always white background
+  },
+  darkContainer: {
+    backgroundColor: '#fff', // Always white background
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
+    color: '#000', // Always black text
+  },
+  darkText: {
+    color: '#000', // Always black text
   },
   subtitle: {
     fontSize: 16,

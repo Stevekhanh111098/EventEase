@@ -2,13 +2,13 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 
-export default function HomeScreen() {
+export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       {/* 📸 70% Image Section */}
-      <ImageBackground source={require("../logo/welcome_photo.jpg")} style={styles.imageContainer} resizeMode="fill">
+      <ImageBackground source={require("../logo/welcome_photo.jpg")} style={styles.imageContainer} resizeMode="cover">
         <View style={styles.overlay} />
 
         {/* Logo & App Name */}
@@ -29,7 +29,7 @@ export default function HomeScreen() {
       {/* 📌 30% Bottom Login Section with Curved Top */}
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.button} onPress={() => router.push("/login")}>
-          <Text style={styles.buttonText}>Already have an account</Text>
+          <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
