@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Link } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth'; 
 import { auth } from '@/firebase';
@@ -45,9 +45,12 @@ export default function LoginScreen() {
         secureTextEntry
       />
       <Button title="Login" onPress={handleLogin} />
-      <Text style={styles.linkText} onPress={() => router.push("/signup")}>
-        Don't have an account? <Text style={styles.link}>Sign up</Text>
-      </Text>
+      <View style={styles.signupContainer}>
+        <Text style={styles.signupText}>Don't have an account?</Text>
+        <TouchableOpacity onPress={() => router.push("/signup")}>
+          <Text style={styles.linkText}>Sign up</Text>  
+        </TouchableOpacity> 
+      </View>
     </View>
   );
 }
@@ -56,33 +59,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 30,
-    alignSelf: 'center',
+    padding: 20,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 24,
-    textAlign: 'center',
   },
   input: {
     height: 40,
+    width: '80%',
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 16,
-    paddingHorizontal: 8,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
   signupText: {
-    marginTop: 16,
-    textAlign: 'center',
+    color: "#000",
   },
-  link: {
-    color: '#11181C',
-    fontWeight: 'bold',
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 15,
   },
   linkText: {
-    marginTop: 15,
+    marginLeft: 5,
     color: "blue",
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
+import { View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase"; // Import Firebase auth
@@ -44,9 +44,12 @@ export default function SignupScreen() {
         secureTextEntry
       />
       <Button title="Sign Up" onPress={handleSignup} />
-      <Text style={styles.linkText} onPress={() => router.push("/login")}>
-        Already have an account? Login
-      </Text>
+      <View style={styles.loginContainer}>
+        <Text style={styles.normalText}>Already have an account?</Text>
+        <TouchableOpacity onPress={() => router.push("/login")}>
+          <Text style={styles.linkText}>Login</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -65,15 +68,23 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    width: "100%",
+    width: "80%",
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
   },
-  linkText: {
+  loginContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 15,
+  },
+  normalText: {
+    color: "#000",
+  },
+  linkText: {
+    marginLeft: 5,
     color: "blue",
   },
 });
