@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity, useColorScheme } from 'react-native';
-import { Link } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth'; 
 import { auth } from '@/firebase';
 import { useRouter } from "expo-router";
@@ -48,6 +47,15 @@ export default function LoginScreen() {
         secureTextEntry
       />
       <Button title="Login" onPress={handleLogin} />
+
+      {/* Forgot Password Link */}
+      <TouchableOpacity onPress={() => router.push("/reset-password")}>
+        <Text style={[styles.forgotPasswordText, colorScheme === 'dark' && styles.darkLinkText]}>
+          Forgot Password?
+        </Text>
+      </TouchableOpacity>
+
+      {/* Sign Up Link */}
       <View style={styles.signupContainer}>
         <Text style={[styles.signupText, colorScheme === 'dark' && styles.darkText]}>Don't have an account?</Text>
         <TouchableOpacity onPress={() => router.push("/signup")}>
@@ -102,5 +110,11 @@ const styles = StyleSheet.create({
     color: "blue",
   },
   darkLinkText: {
+    color: "blue", // Ensure link text is visible in dark mode
+  },
+  forgotPasswordText: {
+    marginTop: 10,
+    color: "blue", // Match the link text color
+    textAlign: 'center', // Center the text
   },
 });
