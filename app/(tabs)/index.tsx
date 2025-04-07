@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import HamburgerMenu from '../../components/HamburgerMenu'; // Import the HamburgerMenu component
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -16,10 +17,10 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           {/* Hamburger Menu */}
-          <HamburgerMenu onPress={() => router.push("/event-creation")} />
+          <HamburgerMenu onPress={() => router.push("/eventcreation")} />
 
           {/* User Profile Icon */}
-          <TouchableOpacity onPress={() => router.push("/profile")} style={styles.profileButton}>
+          <TouchableOpacity onPress={() => router.push("/profolio")} style={styles.profileButton}>
             <Image
               source={require('../../logo/logo-color.png')}
               style={styles.profileIcon}
