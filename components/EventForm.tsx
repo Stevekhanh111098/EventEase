@@ -41,11 +41,11 @@ const EventForm = () => {
     }
   }, [params]);
 
-  const handleChange = (name, value) => {
+  const handleChange = (name: string, value: string | number | Date) => {
     setEvent(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleConfirmDate = (selectedDate) => {
+  const handleConfirmDate = (selectedDate: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setEvent(prev => ({ ...prev, date: selectedDate }));
@@ -74,7 +74,7 @@ const EventForm = () => {
         alert("Event created!");
       }
       router.push("/events");
-    } catch (err) {
+    } catch (err: any) {
       alert("Error saving event: " + err.message);
     }
   };
