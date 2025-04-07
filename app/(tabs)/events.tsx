@@ -20,6 +20,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "@/firebase";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 type EventItem = {
   id: string;
@@ -27,6 +28,8 @@ type EventItem = {
   date: string;
   location: string;
   budget: string;
+  start: string; // New field
+  end: string;   // New field
 };
 
 export default function EventsScreen() {
@@ -34,6 +37,24 @@ export default function EventsScreen() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [currentlyEditingId, setCurrentlyEditingId] = useState<string | null>(null);
   const [editedEvent, setEditedEvent] = useState<Partial<EventItem>>({});
+  const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
+  const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
+
+  const showStartTimePicker = () => setStartTimePickerVisible(true);
+  const hideStartTimePicker = () => setStartTimePickerVisible(false);
+
+  const showEndTimePicker = () => setEndTimePickerVisible(true);
+  const hideEndTimePicker = () => setEndTimePickerVisible(false);
+
+  const handleConfirmStartTime = (selectedTime: Date) => {
+    setEditedEvent((prev) => ({ ...prev, start: selectedTime.toISOString() }));
+    hideStartTimePicker();
+  };
+
+  const handleConfirmEndTime = (selectedTime: Date) => {
+    setEditedEvent((prev) => ({ ...prev, end: selectedTime.toISOString() }));
+    hideEndTimePicker();
+  };
 
   useEffect(() => {
     const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
@@ -42,6 +63,8 @@ export default function EventsScreen() {
       const fetched: EventItem[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...(doc.data() as Omit<EventItem, "id">),
+        start: doc.data().startTime, // Map startTime to start
+        end: doc.data().endTime,     // Map endTime to end
       }));
       setEvents(fetched);
     });
@@ -63,6 +86,8 @@ export default function EventsScreen() {
         date: editedEvent.date,
         location: editedEvent.location,
         budget: editedEvent.budget,
+        start: editedEvent.start, // Save start time
+        end: editedEvent.end,     // Save end time
       });
 
       setCurrentlyEditingId(null);
@@ -138,15 +163,48 @@ export default function EventsScreen() {
               placeholder="Budget"
               keyboardType="numeric"
             />
+            <TouchableOpacity onPress={showStartTimePicker}>
+              <TextInput
+                value={editedEvent.start ? new Date(editedEvent.start).toLocaleTimeString() : ""}
+                editable={false} // Disable manual typing
+                style={styles.input}
+                placeholder="Start Time"
+                pointerEvents="none" // Prevent touch events on the TextInput
+              />
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isStartTimePickerVisible}
+              mode="time"
+              onConfirm={handleConfirmStartTime}
+              onCancel={hideStartTimePicker}
+            />
+            <TouchableOpacity onPress={showEndTimePicker}>
+              <TextInput
+                value={editedEvent.end ? new Date(editedEvent.end).toLocaleTimeString() : ""}
+                editable={false} // Disable manual typing
+                style={styles.input}
+                placeholder="End Time"
+                pointerEvents="none" // Prevent touch events on the TextInput
+              />
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isEndTimePickerVisible}
+              mode="time"
+              onConfirm={handleConfirmEndTime}
+              onCancel={hideEndTimePicker}
+            />
             <View style={styles.buttonRow}>
               <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
                 <Text style={styles.buttonText}>Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => handleDelete(item.id)}
-                style={styles.deleteButton}
+                onPress={() => {
+                  setCurrentlyEditingId(null); // Cancel editing
+                  setEditedEvent({}); // Reset edited event
+                }}
+                style={styles.cancelButton}
               >
-                <Text style={styles.buttonText}>Delete</Text>
+                <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -156,6 +214,8 @@ export default function EventsScreen() {
             <Text>Date: {item.date}</Text>
             <Text>Location: {item.location}</Text>
             <Text>Budget: ${item.budget}</Text>
+            <Text>Start Time: {item.start}</Text>
+            <Text>End Time: {item.end}</Text>
             <View style={styles.buttonRow}>
               <TouchableOpacity onPress={() => handleEdit(item)} style={styles.editButton}>
                 <Text style={styles.buttonText}>Edit</Text>
@@ -236,6 +296,12 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: "#34C759",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  cancelButton: {
+    backgroundColor: "#FF9500",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 5,
