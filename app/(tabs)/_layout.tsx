@@ -24,9 +24,6 @@ export default function TabLayout() {
             case 'index':
               iconName = focused ? 'home' : 'home-outline';
               break;
-            case 'explore':
-              iconName = focused ? 'navigate' : 'navigate-outline';
-              break;
             case 'events':
               iconName = focused ? 'list' : 'list-outline';
               break;
@@ -46,7 +43,6 @@ export default function TabLayout() {
       })}
     >
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="explore" options={{ title: 'Explore' }} />
       <Tabs.Screen name="events" options={{ title: 'Events' }} />
       <Tabs.Screen name="eventcreation" options={{ title: 'Create' }} />
     </Tabs>

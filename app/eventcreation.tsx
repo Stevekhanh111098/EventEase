@@ -12,6 +12,8 @@ export default function CreateEventScreen() {
   const [eventDate, setEventDate] = useState(new Date());
   const [eventLocation, setEventLocation] = useState("");
   const [eventBudget, setEventBudget] = useState("");
+  const [description, setDescription] = useState("");
+  const [hostedBy, setHostedBy] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const router = useRouter();
 
@@ -30,6 +32,14 @@ export default function CreateEventScreen() {
     }
     if (step === 4 && (isNaN(Number(eventBudget)) || Number(eventBudget) <= 0)) {
       Alert.alert("Error", "Please enter a valid budget.");
+      return;
+    }
+    if (step === 5 && description.trim() === "") {
+      Alert.alert("Error", "Description is required.");
+      return;
+    }
+    if (step === 6 && hostedBy.trim() === "") {
+      Alert.alert("Error", "Hosted By is required.");
       return;
     }
     setStep(step + 1);
@@ -52,6 +62,8 @@ export default function CreateEventScreen() {
         date: formatDateForFirestore(eventDate),
         location: eventLocation,
         budget: eventBudget,
+        description: description,
+        hostedBy: hostedBy,
         createdAt: new Date(),
       });
       Alert.alert("Success", "Event created successfully!");
@@ -71,7 +83,7 @@ export default function CreateEventScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create Event (Step {step} of 4)</Text>
+      <Text style={styles.title}>Create Event (Step {step} of 6)</Text>
 
       {step === 1 && (
         <TextInput style={styles.input} placeholder="Event Name" value={eventName} onChangeText={setEventName} />
@@ -111,9 +123,23 @@ export default function CreateEventScreen() {
         />
       )}
 
+      {step === 5 && (
+        <TextInput
+          style={styles.input}
+          placeholder="Description"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+        />
+      )}
+
+      {step === 6 && (
+        <TextInput style={styles.input} placeholder="Hosted By" value={hostedBy} onChangeText={setHostedBy} />
+      )}
+
       <View style={styles.buttonContainer}>
         {step > 1 && <Button title="Back" onPress={() => setStep(step - 1)} />}
-        {step < 4 ? (
+        {step < 6 ? (
           <Button title="Next" onPress={handleNext} />
         ) : (
           <Button title="Create Event" onPress={handleCreateEvent} />

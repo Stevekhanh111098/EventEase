@@ -22,7 +22,7 @@ export default function LoginScreen() {
       Alert.alert("Success", "Login successful!");
       router.push("/(tabs)/events"); // Navigate to home or dashboard
     } catch (error: any) {
-      Alert.alert("Login Failed", error.message);
+      Alert.alert("Login Failed", "Email and password do not match.");
     }
   };
 
