@@ -1,17 +1,30 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet, Alert, Platform, SafeAreaView, ScrollView, TouchableOpacity, Switch } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+} from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 import { useRouter } from "expo-router";
 import moment from "moment";
-import { Picker } from "@react-native-picker/picker";
-import { getAuth } from "firebase/auth"; // Import Firebase Auth
+import { getAuth } from "firebase/auth";
+import DropDownPicker from "react-native-dropdown-picker";
 
 export default function CreateEventScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        nestedScrollEnabled={true}
+        contentContainerStyle={styles.scrollContainer}
+      >
         <View style={styles.headerContainer}>
           <Text style={styles.header}>Create New Event</Text>
         </View>
@@ -24,60 +37,55 @@ export default function CreateEventScreen() {
 const EventForm = () => {
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState(new Date());
-  const [startTime, setStartTime] = useState(new Date()); // New state for start time
-  const [endTime, setEndTime] = useState(new Date()); // New state for end time
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
   const [eventLocation, setEventLocation] = useState("");
   const [eventBudget, setEventBudget] = useState("");
   const [description, setDescription] = useState("");
   const [hostedBy, setHostedBy] = useState("");
-  const [eventType, setEventType] = useState("conference");
   const [customEventType, setCustomEventType] = useState("");
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showStartTimePicker, setShowStartTimePicker] = useState(false); // New state for start time picker
-  const [showEndTimePicker, setShowEndTimePicker] = useState(false); // New state for end time picker
-  const [isPrivate, setIsPrivate] = useState(false); // New state for event visibility
+  const [isPrivate, setIsPrivate] = useState(false);
   const router = useRouter();
 
+  const [open, setOpen] = useState(false);
+  const [eventType, setEventType] = useState(null);
+  const [items, setItems] = useState([
+    { label: "Conference", value: "conference" },
+    { label: "Workshop", value: "workshop" },
+    { label: "Party", value: "party" },
+    { label: "Wedding", value: "wedding" },
+    { label: "Meeting", value: "meeting" },
+    { label: "Corporate", value: "corporate" },
+    { label: "Other", value: "other" },
+  ]);
+
   const handleCreateEvent = async () => {
-    const auth = getAuth(); // Get the Firebase Auth instance
-    const currentUser = auth.currentUser; // Get the currently logged-in user
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
 
     if (!currentUser) {
       Alert.alert("Error", "You must be logged in to create an event.");
       return;
     }
 
-    const creatorUid = currentUser.uid; // Get the creator's UID
-    const guestList = []; // Initialize an empty guest list (you can populate this later)
+    const creatorUid = currentUser.uid;
+    const guestList = [];
 
-    if (eventName.trim() === "") {
-      Alert.alert("Error", "Event name is required.");
-      return;
-    }
-    if (!eventDate) {
-      Alert.alert("Error", "Event date is required.");
-      return;
-    }
-    if (eventLocation.trim() === "") {
-      Alert.alert("Error", "Event location is required.");
-      return;
-    }
-    if (isNaN(Number(eventBudget)) || Number(eventBudget) <= 0) {
-      Alert.alert("Error", "Please enter a valid budget.");
-      return;
-    }
-    if (description.trim() === "") {
-      Alert.alert("Error", "Description is required.");
-      return;
-    }
-    if (hostedBy.trim() === "") {
-      Alert.alert("Error", "Hosted By is required.");
-      return;
-    }
-    if (eventType === "other" && customEventType.trim() === "") {
-      Alert.alert("Error", "Please enter a custom event type.");
-      return;
-    }
+    if (eventName.trim() === "")
+      return Alert.alert("Error", "Event name is required.");
+    if (!eventDate) return Alert.alert("Error", "Event date is required.");
+    if (eventLocation.trim() === "")
+      return Alert.alert("Error", "Event location is required.");
+    if (isNaN(Number(eventBudget)) || Number(eventBudget) <= 0)
+      return Alert.alert("Error", "Please enter a valid budget.");
+    if (description.trim() === "")
+      return Alert.alert("Error", "Description is required.");
+    if (hostedBy.trim() === "")
+      return Alert.alert("Error", "Hosted By is required.");
+    if (eventType === "other" && customEventType.trim() === "")
+      return Alert.alert("Error", "Please enter a custom event type.");
+    if (startTime >= endTime)
+      return Alert.alert("Error", "Start time must be before end time.");
 
     const finalEventType = eventType === "other" ? customEventType : eventType;
 
@@ -85,17 +93,17 @@ const EventForm = () => {
       const docRef = await addDoc(collection(db, "events"), {
         name: eventName,
         date: moment(eventDate).format("YYYY-MM-DD"),
-        startTime: moment(startTime).format("HH:mm"), // Include start time
-        endTime: moment(endTime).format("HH:mm"), // Include end time
+        startTime: moment(startTime).toISOString(),
+        endTime: moment(endTime).toISOString(),
         location: eventLocation,
-        budget: eventBudget,
+        budget: Number(eventBudget),
         description: description,
         hostedBy: hostedBy,
-        eventType: finalEventType, // Include event type
+        eventType: finalEventType,
         createdAt: new Date(),
-        creatorUid: creatorUid, // Add the creator's UID
-        guestList: guestList, // Add the guest list (empty for now)
-        isPrivate: isPrivate, // Add event visibility
+        creatorUid: creatorUid,
+        guestList: guestList,
+        isPrivate: isPrivate,
       });
       Alert.alert("Success", "Event created successfully!");
       console.log("Event successfully created with ID:", docRef.id);
@@ -106,192 +114,159 @@ const EventForm = () => {
     }
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date | undefined) => {
-    const currentDate = selectedDate || eventDate;
-    setShowDatePicker(Platform.OS === "ios");
-    setEventDate(currentDate);
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    if (selectedDate) {
+      setEventDate(selectedDate);
+    }
   };
 
-  const handleStartTimeChange = (event: any, selectedTime?: Date | undefined) => {
-    const currentTime = selectedTime || startTime;
-    setShowStartTimePicker(Platform.OS === "ios");
-    setStartTime(currentTime);
+  const onStartTimeChange = (event: any, selectedTime?: Date) => {
+    if (selectedTime) {
+      setStartTime(selectedTime);
+      if (selectedTime >= endTime) {
+        const newEndTime = new Date(selectedTime);
+        newEndTime.setHours(newEndTime.getHours() + 1);
+        setEndTime(newEndTime);
+      }
+    }
   };
 
-  const handleEndTimeChange = (event: any, selectedTime?: Date | undefined) => {
-    const currentTime = selectedTime || endTime;
-    setShowEndTimePicker(Platform.OS === "ios");
-    setEndTime(currentTime);
+  const onEndTimeChange = (event: any, selectedTime?: Date) => {
+    if (selectedTime) {
+      if (selectedTime <= startTime) {
+        Alert.alert(
+          "Invalid Time",
+          "End time cannot be earlier than or the same as the start time."
+        );
+      } else {
+        setEndTime(selectedTime);
+      }
+    }
   };
 
   return (
     <View style={styles.formContainer}>
-      <View>
-        <Text style={styles.label}>Event Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter event name"
-          value={eventName}
-          onChangeText={setEventName}
-        />
-      </View>
+      <Text style={styles.label}>Event Name</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter event name"
+        value={eventName}
+        onChangeText={setEventName}
+      />
 
-      <View>
-        <Text style={styles.label}>Event Date</Text>
-        <TouchableOpacity
-          style={styles.input} // Reuse the input style for the TouchableOpacity
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={styles.dateText}>
-            {moment(eventDate).format("MM/DD/YYYY")}
-          </Text>
-        </TouchableOpacity>
-        {showDatePicker && (
-          <DateTimePicker
-            value={eventDate}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) setEventDate(selectedDate);
-            }}
-          />
-        )}
-      </View>
+      <Text style={styles.label}>Event Date</Text>
+      <DateTimePicker
+        testID="datePicker"
+        value={eventDate}
+        mode="date"
+        display="default"
+        onChange={onDateChange}
+      />
 
       <View style={styles.rowContainer}>
-        <TouchableOpacity
-          style={styles.timePickerContainer}
-          onPress={() => setShowStartTimePicker(true)}
-        >
+        <View style={styles.timePickerContainer}>
           <Text style={styles.label}>Start Time</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Start Time (HH:mm)"
-            value={moment(startTime).format("HH:mm")}
-            editable={false} // Prevent manual editing
-            pointerEvents="none" // Disable touch events on the TextInput
-          />
-        </TouchableOpacity>
-        {showStartTimePicker && (
           <DateTimePicker
+            testID="startTimePicker"
             value={startTime}
             mode="time"
             display="default"
-            onChange={(event, selectedTime) => {
-              setShowStartTimePicker(false);
-              if (selectedTime) setStartTime(selectedTime);
-            }}
+            onChange={onStartTimeChange}
+            is24Hour={false}
           />
-        )}
+        </View>
 
-        <TouchableOpacity
-          style={styles.timePickerContainer}
-          onPress={() => setShowEndTimePicker(true)}
-        >
+        <View style={styles.timePickerContainer}>
           <Text style={styles.label}>End Time</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="End Time (HH:mm)"
-            value={moment(endTime).format("HH:mm")}
-            editable={false} // Prevent manual editing
-            pointerEvents="none" // Disable touch events on the TextInput
-          />
-        </TouchableOpacity>
-        {showEndTimePicker && (
           <DateTimePicker
+            testID="endTimePicker"
             value={endTime}
             mode="time"
             display="default"
-            onChange={(event, selectedTime) => {
-              setShowEndTimePicker(false);
-              if (selectedTime) setEndTime(selectedTime);
-            }}
-          />
-        )}
-      </View>
-
-      <View>
-        <Text style={styles.label}>Event Location</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter event location"
-          value={eventLocation}
-          onChangeText={setEventLocation}
-        />
-      </View>
-
-      <View>
-        <Text style={styles.label}>Event Budget</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter event budget ($)"
-          keyboardType="numeric"
-          value={eventBudget}
-          onChangeText={setEventBudget}
-        />
-      </View>
-
-      <View>
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={styles.descriptionInput} // Use the new style for description
-          placeholder="Enter event description"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-      </View>
-
-      <View>
-        <Text style={styles.label}>Hosted By</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter host name"
-          value={hostedBy}
-          onChangeText={setHostedBy}
-        />
-      </View>
-
-      <View>
-        <Text style={styles.label}>Event Type</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={eventType}
-            onValueChange={(itemValue) => setEventType(itemValue)}
-            style={styles.picker}
-          >
-            <Picker.Item label="Conference" value="conference" />
-            <Picker.Item label="Workshop" value="workshop" />
-            <Picker.Item label="Party" value="party" />
-            <Picker.Item label="Meeting" value="meeting" />
-            <Picker.Item label="Other" value="other" />
-          </Picker>
-        </View>
-        {eventType === "other" && (
-          <TextInput
-            style={styles.input}
-            placeholder="Enter custom event type"
-            value={customEventType}
-            onChangeText={setCustomEventType}
-          />
-        )}
-      </View>
-
-      <View>
-        <Text style={styles.label}>Event Visibility</Text>
-        <View style={styles.rowContainer}>
-          <Text style={{ marginRight: 10 }}>{isPrivate ? "Private" : "Public"}</Text>
-          <Switch
-            value={isPrivate}
-            onValueChange={(value) => setIsPrivate(value)}
+            onChange={onEndTimeChange}
+            is24Hour={false}
           />
         </View>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <Button title="Create Event" onPress={handleCreateEvent} />
+      <Text style={styles.label}>Event Location</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter event location"
+        value={eventLocation}
+        onChangeText={setEventLocation}
+      />
+
+      <Text style={styles.label}>Event Budget ($)</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g., 1000"
+        keyboardType="numeric"
+        value={eventBudget}
+        onChangeText={setEventBudget}
+      />
+
+      <Text style={styles.label}>Description</Text>
+      <TextInput
+        style={styles.descriptionInput}
+        placeholder="Enter event description"
+        value={description}
+        onChangeText={setDescription}
+        multiline
+        numberOfLines={4}
+      />
+
+      <Text style={styles.label}>Hosted By</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter host name"
+        value={hostedBy}
+        onChangeText={setHostedBy}
+      />
+
+      <Text style={styles.label}>Event Type</Text>
+      <View style={styles.pickerContainer}>
+        <DropDownPicker
+          open={open}
+          value={eventType}
+          items={items}
+          setOpen={setOpen}
+          setValue={setEventType}
+          setItems={setItems}
+          placeholder="Select Event Type"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+        />
       </View>
+      {eventType === "other" && (
+        <TextInput
+          style={styles.input}
+          placeholder="Specify event type"
+          value={customEventType}
+          onChangeText={setCustomEventType}
+        />
+      )}
+
+      <View style={styles.switchContainer}>
+        <Text style={styles.label}>Private Event?</Text>
+        <Switch
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={isPrivate ? "#007AFF" : "#f4f3f4"}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={setIsPrivate}
+          value={isPrivate}
+        />
+        <Text style={styles.switchLabel}>
+          {isPrivate ? "Yes (Invite Only)" : "No (Public)"}
+        </Text>
+      </View>
+
+      <TouchableOpacity
+        style={styles.buttonContainer}
+        onPress={handleCreateEvent}
+      >
+        <Text style={styles.button}>Create Event</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -308,11 +283,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   headerContainer: {
-    paddingTop: 40, // Adjusted to move the header lower
-    paddingBottom: 25,
+    paddingTop: 20,
+    paddingBottom: 20,
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
   },
   header: {
     fontSize: 24,
@@ -321,60 +294,132 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: "100%",
-    maxWidth: 500,
+    padding: 10,
   },
   input: {
-    height: 40,
+    height: 45,
     width: "100%",
+    backgroundColor: "#f0f0f0",
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    color: "#000",
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+
+  inputTouchable: {
+    height: 45,
+    width: "100%",
+    backgroundColor: "#f0f0f0",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    justifyContent: "center",
+  },
+
+  inputText: {
+    fontSize: 16,
+    color: "#333",
   },
   descriptionInput: {
-    height: 100, // Increased height for the description input
+    minHeight: 100,
     width: "100%",
+    backgroundColor: "#f0f0f0",
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    color: "#000",
-    textAlignVertical: "top", // Align text to the top for multiline input
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+    textAlignVertical: "top",
   },
   label: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "left",
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#555",
   },
   buttonContainer: {
-    marginTop: 20,
-    width: "100%",
+    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16,
+    elevation: 2, // adds shadow on Android
+    shadowColor: "#000", // for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
+
+  button: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
   pickerContainer: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
-    marginBottom: 10,
-    width: "100%", // Ensure it takes the full width of the container
-    maxWidth: 500, // Optional: Limit the maximum width
-    paddingHorizontal: 10, // Add padding for better spacing
+    borderRadius: 8,
+    marginBottom: 15,
+    width: "100%",
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    height: 50,
   },
   picker: {
+    width: "100%",
     height: 50,
-    width: "100%", // Ensure the picker takes the full width of its container
-    fontSize: 14, // Reduce font size to fit text properly
   },
   rowContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 0,
+    gap: 15,
   },
   timePickerContainer: {
     flex: 1,
-    marginRight: 10,
+    marginBottom: 15,
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 15,
+    width: "100%",
+    justifyContent: "space-between",
+    paddingHorizontal: 5,
+  },
+  switchLabel: {
+    marginLeft: 10,
+    fontSize: 15,
+    color: "#555",
+    flexShrink: 1,
+  },
+  pickerContainer: {
+    zIndex: 1000, // Ensure it's above other elements
+    marginBottom: 16,
+  },
+
+  dropdown: {
+    backgroundColor: "#fff",
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 48,
+  },
+
+  dropdownContainer: {
+    borderColor: "#ccc",
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
   },
 });
