@@ -21,6 +21,8 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import ScreenContainer from "@/components/ScreenContainer";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 type EventItem = {
   id: string;
@@ -39,6 +41,7 @@ export default function EventsScreen() {
   const [editedEvent, setEditedEvent] = useState<Partial<EventItem>>({});
   const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
   const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
+  const tabBarHeight = useBottomTabBarHeight();
 
   const showStartTimePicker = () => setStartTimePickerVisible(true);
   const hideStartTimePicker = () => setStartTimePickerVisible(false);
@@ -234,7 +237,7 @@ export default function EventsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       <Text style={styles.title}>Event List</Text>
       {events.length === 0 ? (
         <Text style={styles.subtitle}>No events found.</Text>
@@ -248,12 +251,12 @@ export default function EventsScreen() {
       )}
 
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { bottom: tabBarHeight + 16 }]}
         onPress={() => router.push("/eventcreation")}
       >
         <Ionicons name="add" size={28} color="white" />
       </TouchableOpacity>
-    </View>
+    </ScreenContainer>
   );
 }
 

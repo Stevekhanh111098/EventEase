@@ -17,10 +17,11 @@ import { useRouter } from "expo-router";
 import moment from "moment";
 import { getAuth } from "firebase/auth";
 import DropDownPicker from "react-native-dropdown-picker";
+import ScreenContainer from "@/components/ScreenContainer";
 
 export default function CreateEventScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenContainer>
       <ScrollView
         nestedScrollEnabled={true}
         contentContainerStyle={styles.scrollContainer}
@@ -30,7 +31,7 @@ export default function CreateEventScreen() {
         </View>
         <EventForm />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenContainer>
   );
 }
 
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 20,
   },
   headerContainer: {
     paddingTop: 20,
