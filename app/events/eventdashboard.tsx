@@ -24,6 +24,7 @@ import { PieChart } from "react-native-chart-kit";
 import { format } from "date-fns";
 import { router } from "expo-router";
 import ScreenContainer from "@/components/ScreenContainer";
+import { Card } from "react-native-paper";
 
 type EventDetails = {
   name: string;
@@ -229,32 +230,35 @@ export default function EventDashboard() {
       <ScrollView nestedScrollEnabled={true}>
         <View style={styles.container}>
           {eventDetails && (
-            <View>
-              <Text style={styles.title}>{eventDetails.name}</Text>
-              <Text>Date: {eventDetails.date}</Text>
-              <Text>Location: {eventDetails.location}</Text>
-              <Text>Budget: ${eventDetails.budget}</Text>
-            </View>
+            <Card style={styles.card}>
+              <View>
+                <Text style={styles.title}>{eventDetails.name}</Text>
+                <Text>Date: {eventDetails.date}</Text>
+                <Text>Location: {eventDetails.location}</Text>
+                <Text>Budget: ${eventDetails.budget}</Text>
+              </View>
+            </Card>
           )}
 
-          <Text style={styles.subtitle}>Guest List</Text>
-          {guestList.map((item, index) => (
-            <View key={index} style={styles.guestItem}>
-              <Text>{item.name}</Text>
-              <Text>RSVP: {item.rsvp}</Text>
-              <Text>Meal: {item.meal}</Text>
-              <Text>VIP: {item.vip ? "Yes" : "No"}</Text>
-            </View>
-          ))}
+          <Card style={styles.card}>
+            <Text style={styles.subtitle}>Guest List</Text>
+            {guestList.map((item, index) => (
+              <View key={index} style={styles.guestItem}>
+                <Text>{item.name}</Text>
+                <Text>RSVP: {item.rsvp}</Text>
+                <Text>Meal: {item.meal}</Text>
+                <Text>VIP: {item.vip ? "Yes" : "No"}</Text>
+              </View>
+            ))}
+            <TouchableOpacity
+              onPress={navigateToAddGuest}
+              style={styles.addButton}
+            >
+              <Text style={styles.buttonText}>Add Guest</Text>
+            </TouchableOpacity>
+          </Card>
 
-          <TouchableOpacity
-            onPress={navigateToAddGuest}
-            style={styles.addButton}
-          >
-            <Text style={styles.buttonText}>Add Guest</Text>
-          </TouchableOpacity>
-
-          <View>
+          <Card style={styles.card}>
             <Text style={styles.subtitle}>Budget Overview</Text>
             <Text>Total Budget: ${totalBudget}</Text>
             <Text>Total Spent: ${totalSpent}</Text>
@@ -279,31 +283,73 @@ export default function EventDashboard() {
               paddingLeft="15"
               absolute
             />
-          </View>
-          <TouchableOpacity
-            onPress={navigateToAddExpense}
-            style={styles.addButton}
-          >
-            <Text style={styles.buttonText}>Add Expense</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={navigateToAddExpense}
+              style={styles.addButton}
+            >
+              <Text style={styles.buttonText}>Add Expense</Text>
+            </TouchableOpacity>
+          </Card>
 
-          <View>
+          <Card style={styles.card}>
             <Text style={styles.subtitle}>Task List</Text>
-              {tasks.map((task, index) => (
-                <View key={index} style={styles.taskItem}>
-                  <Text>{task.title}</Text>
-                  <Text>
-                    Deadline: {task.deadline && task.deadline.toDate ? format(task.deadline.toDate(), "MMM dd, yyyy") : "N/A"}
-                  </Text>
-                </View>
-              ))}
-          </View>
-          <TouchableOpacity
-            onPress={navigateToAddTask}
-            style={styles.addButton}
-          >
-            <Text style={styles.buttonText}>Add Task</Text>
-          </TouchableOpacity>
+            {tasks.map((task, index) => (
+              <View key={index} style={styles.taskItem}>
+                <Text>{task.title}</Text>
+                <Text>
+                  Deadline:{" "}
+                  {task.deadline && task.deadline.toDate
+                    ? format(task.deadline.toDate(), "MMM dd, yyyy")
+                    : "N/A"}
+                </Text>
+                <Text>
+                  Status: {task.isCompleted ? "Completed" : "Pending"}
+                </Text>
+                {!task.isCompleted && (
+                  <TouchableOpacity
+                    onPress={async () => {
+                      try {
+                        await updateDoc(doc(db, "tasks", task.id), {
+                          isCompleted: true,
+                        });
+                      } catch (error) {
+                        console.error(
+                          "Failed to mark task as completed:",
+                          error
+                        );
+                      }
+                    }}
+                    style={styles.completeButton}
+                  >
+                    <Text style={styles.buttonText}>Mark as Completed</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))}
+            <View style={styles.progressContainer}>
+              <Text>Task Progress</Text>
+              <ProgressBar
+                progress={
+                  tasks.length > 0
+                    ? tasks.filter((task) => task.isCompleted).length /
+                      tasks.length
+                    : 0
+                }
+                color="#007AFF"
+                style={styles.progressBar}
+              />
+              <Text>
+                {tasks.filter((task) => task.isCompleted).length} /{" "}
+                {tasks.length} tasks completed
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={navigateToAddTask}
+              style={styles.addButton}
+            >
+              <Text style={styles.buttonText}>Add Task</Text>
+            </TouchableOpacity>
+          </Card>
         </View>
       </ScrollView>
     </ScreenContainer>
@@ -376,5 +422,19 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
+  },
+  completeButton: {
+    backgroundColor: "#4CD964",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  progressContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  card: {
+    marginBottom: 20,
+    padding: 10,
   },
 });
