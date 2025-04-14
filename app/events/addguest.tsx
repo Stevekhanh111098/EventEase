@@ -3,12 +3,13 @@ import {
   View,
   Text,
   TextInput,
+  Switch,
   TouchableOpacity,
   StyleSheet,
   Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 
 export default function AddGuest() {
@@ -16,30 +17,26 @@ export default function AddGuest() {
   const { eventId } = useLocalSearchParams();
   const [guest, setGuest] = useState({
     name: "",
+    email: "",
     rsvp: "",
     meal: "",
     vip: false,
   });
 
   const handleAddGuest = async () => {
-    if (!guest.name.trim()) {
-      Alert.alert("Error", "Guest name is required.");
+    if (!guest.name.trim() || !guest.email.trim()) {
+      Alert.alert("Error", "Guest name and email are required.");
       return;
     }
 
     try {
-      const eventRef = doc(db, "events", eventId);
-      const eventSnapshot = await getDoc(eventRef);
-      const eventData = eventSnapshot.data();
+      // Save guest data in the guestLists collection
+      await addDoc(collection(db, "guestLists"), {
+        eventId,
+        ...guest,
+        rsvp: "Pending",
+      });
 
-      if (!eventData) {
-        Alert.alert("Error", "Event not found.");
-        return;
-      }
-
-      const updatedGuestList = [...(eventData.guestList || []), guest];
-
-      await updateDoc(eventRef, { guestList: updatedGuestList });
       Alert.alert("Success", "Guest added successfully.");
       router.back();
     } catch (error) {
@@ -59,9 +56,9 @@ export default function AddGuest() {
       />
       <TextInput
         style={styles.input}
-        placeholder="RSVP (Yes/No/Maybe)"
-        value={guest.rsvp}
-        onChangeText={(text) => setGuest((prev) => ({ ...prev, rsvp: text }))}
+        placeholder="Guest Email"
+        value={guest.email}
+        onChangeText={(text) => setGuest((prev) => ({ ...prev, email: text }))}
       />
       <TextInput
         style={styles.input}
@@ -69,14 +66,15 @@ export default function AddGuest() {
         value={guest.meal}
         onChangeText={(text) => setGuest((prev) => ({ ...prev, meal: text }))}
       />
-      <TouchableOpacity
-        onPress={() => setGuest((prev) => ({ ...prev, vip: !prev.vip }))}
-        style={styles.vipButton}
-      >
-        <Text style={styles.buttonText}>
-          {guest.vip ? "Mark as Regular" : "Mark as VIP"}
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>VIP</Text>
+        <Switch
+          value={guest.vip}
+          onValueChange={(value) =>
+            setGuest((prev) => ({ ...prev, vip: value }))
+          }
+        />
+      </View>
       <TouchableOpacity onPress={handleAddGuest} style={styles.addButton}>
         <Text style={styles.buttonText}>Add Guest</Text>
       </TouchableOpacity>
@@ -95,12 +93,12 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 10,
   },
-  vipButton: {
-    backgroundColor: "#FF9500",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
+  switchLabel: { fontSize: 16, marginRight: 10 },
   addButton: {
     backgroundColor: "#007AFF",
     padding: 10,

@@ -10,8 +10,9 @@ import {
   useColorScheme,
 } from "react-native";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { useRouter } from "expo-router";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -20,10 +21,35 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         Alert.alert("Welcome back!", "You are logged in as " + user.email);
         router.push("/(tabs)/events");
+
+        // Check for invitations in the guestLists collection
+        const guestListsRef = collection(db, "guestLists");
+        const q = query(guestListsRef, where("email", "==", user.email));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          Alert.alert("Invitation Found", "You have been invited to events.", [
+            {
+              text: "View Invitations",
+              onPress: () => {
+                querySnapshot.forEach((doc) => {
+                  const { eventId } = doc.data();
+                  const docId = doc.id; // Extract the document ID
+                  router.push({
+                    pathname: "/events/rsvp",
+                    params: { eventId, guestEmail: user.email, docId },
+                  });
+                });
+              },
+            },
+          ]);
+        } else {
+          console.log("No invitations found.");
+        }
       }
     });
 
@@ -32,18 +58,42 @@ export default function LoginScreen() {
   }, []);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please enter email and password.");
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Error", "Email and password are required.");
       return;
     }
 
     try {
-      // Firebase Authentication
-      await signInWithEmailAndPassword(auth, email, password);
-      Alert.alert("Success", "Login successful!");
-      router.push("/(tabs)/events"); // Navigate to home or dashboard
-    } catch (error: any) {
-      Alert.alert("Login Failed", "Email and password do not match.");
+      const user = await signInWithEmailAndPassword(auth, email, password);
+
+      // Check for invitations in the guestLists collection
+      const guestListsRef = collection(db, "guestLists");
+      const q = query(guestListsRef, where("email", "==", user.user.email));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        Alert.alert("Invitation Found", "You have been invited to events.", [
+          {
+            text: "View Invitations",
+            onPress: () => {
+              querySnapshot.forEach((doc) => {
+                const { eventId } = doc.data();
+                const docId = doc.id; // Extract the document ID
+                router.push({
+                  pathname: "/events/rsvp",
+                  params: { eventId, guestEmail: user.user.email, docId },
+                });
+              });
+            },
+          },
+        ]);
+      } else {
+        Alert.alert("Welcome", "Login successful.");
+        router.push("/menu");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      Alert.alert("Error", "Login failed. Please try again.");
     }
   };
 

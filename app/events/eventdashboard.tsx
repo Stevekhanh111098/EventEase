@@ -68,6 +68,7 @@ export default function EventDashboard() {
   });
   const [selectedVendors, setSelectedVendors] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
+  const [rsvpData, setRSVPData] = useState<any[]>([]);
 
   useEffect(() => {
     if (!eventId || typeof eventId !== "string") return;
@@ -83,7 +84,6 @@ export default function EventDashboard() {
           budget: data.budget,
           guestList: data.guestList || [],
         });
-        setGuestList(data.guestList || []);
         setTotalBudget(data.budget || 0);
       }
     });
@@ -143,6 +143,46 @@ export default function EventDashboard() {
       unsubscribeVendors();
       unsubscribeAvailableVendors();
     };
+  }, [eventId]);
+
+  const fetchRSVPData = async () => {
+    try {
+      const rsvpsRef = collection(db, "rsvps");
+      const q = query(rsvpsRef, where("eventId", "==", eventId));
+      const querySnapshot = await getDocs(q);
+
+      const rsvpData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setRSVPData(rsvpData);
+    } catch (error) {
+      console.error("Failed to fetch RSVP data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRSVPData();
+  }, [eventId]);
+
+  const fetchGuestList = async () => {
+    try {
+      const guestListRef = collection(db, "guestLists");
+      const q = query(guestListRef, where("eventId", "==", eventId));
+      const querySnapshot = await getDocs(q);
+
+      const guests = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setGuestList(guests);
+    } catch (error) {
+      console.error("Failed to fetch guest list:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGuestList();
   }, [eventId]);
 
   const handleAddGuest = async () => {
@@ -321,6 +361,13 @@ export default function EventDashboard() {
 
           <Card style={styles.card}>
             <Text style={styles.subtitle}>Guest List</Text>
+            <Text style={styles.summaryText}>
+              {guestList
+                .filter((guest) => guest.rsvp === "Yes")
+                .map((guest) => guest.name)
+                .join(", ") || "No guests are coming"}{" "}
+              are coming.
+            </Text>
             {guestList.map((item, index) => (
               <View key={index} style={styles.guestItem}>
                 <Text>{item.name}</Text>
