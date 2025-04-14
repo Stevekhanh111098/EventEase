@@ -31,17 +31,21 @@ type EventItem = {
   location: string;
   budget: string;
   start: string; // New field
-  end: string;   // New field
+  end: string; // New field
 };
 
 export default function EventsScreen() {
   const router = useRouter();
   const [events, setEvents] = useState<EventItem[]>([]);
-  const [currentlyEditingId, setCurrentlyEditingId] = useState<string | null>(null);
+  const [currentlyEditingId, setCurrentlyEditingId] = useState<string | null>(
+    null
+  );
+
+  const bottomTabBarHeight = useBottomTabBarHeight();
+
   const [editedEvent, setEditedEvent] = useState<Partial<EventItem>>({});
   const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
   const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
-  const tabBarHeight = useBottomTabBarHeight();
 
   const showStartTimePicker = () => setStartTimePickerVisible(true);
   const hideStartTimePicker = () => setStartTimePickerVisible(false);
@@ -67,7 +71,7 @@ export default function EventsScreen() {
         id: doc.id,
         ...(doc.data() as Omit<EventItem, "id">),
         start: doc.data().startTime, // Map startTime to start
-        end: doc.data().endTime,     // Map endTime to end
+        end: doc.data().endTime, // Map endTime to end
       }));
       setEvents(fetched);
     });
@@ -90,7 +94,7 @@ export default function EventsScreen() {
         location: editedEvent.location,
         budget: editedEvent.budget,
         start: editedEvent.start, // Save start time
-        end: editedEvent.end,     // Save end time
+        end: editedEvent.end, // Save end time
       });
 
       setCurrentlyEditingId(null);
@@ -124,6 +128,10 @@ export default function EventsScreen() {
       ],
       { cancelable: true }
     );
+  };
+
+  const handleNavigateToDashboard = (eventId: string) => {
+    router.push({ pathname: "/events/eventdashboard", params: { eventId } });
   };
 
   const renderItem = ({ item }: { item: EventItem }) => {
@@ -168,7 +176,11 @@ export default function EventsScreen() {
             />
             <TouchableOpacity onPress={showStartTimePicker}>
               <TextInput
-                value={editedEvent.start ? new Date(editedEvent.start).toLocaleTimeString() : ""}
+                value={
+                  editedEvent.start
+                    ? new Date(editedEvent.start).toLocaleTimeString()
+                    : ""
+                }
                 editable={false} // Disable manual typing
                 style={styles.input}
                 placeholder="Start Time"
@@ -183,7 +195,11 @@ export default function EventsScreen() {
             />
             <TouchableOpacity onPress={showEndTimePicker}>
               <TextInput
-                value={editedEvent.end ? new Date(editedEvent.end).toLocaleTimeString() : ""}
+                value={
+                  editedEvent.end
+                    ? new Date(editedEvent.end).toLocaleTimeString()
+                    : ""
+                }
                 editable={false} // Disable manual typing
                 style={styles.input}
                 placeholder="End Time"
@@ -213,14 +229,21 @@ export default function EventsScreen() {
           </>
         ) : (
           <>
-            <Text style={styles.eventName}>{item.name}</Text>
+            <TouchableOpacity
+              onPress={() => handleNavigateToDashboard(item.id)}
+            >
+              <Text style={styles.eventName}>{item.name}</Text>
+            </TouchableOpacity>
             <Text>Date: {item.date}</Text>
             <Text>Location: {item.location}</Text>
             <Text>Budget: ${item.budget}</Text>
             <Text>Start Time: {item.start}</Text>
             <Text>End Time: {item.end}</Text>
             <View style={styles.buttonRow}>
-              <TouchableOpacity onPress={() => handleEdit(item)} style={styles.editButton}>
+              <TouchableOpacity
+                onPress={() => handleEdit(item)}
+                style={styles.editButton}
+              >
                 <Text style={styles.buttonText}>Edit</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -237,7 +260,7 @@ export default function EventsScreen() {
   };
 
   return (
-    <ScreenContainer>
+    <ScreenContainer insideTabs={true}>
       <Text style={styles.title}>Event List</Text>
       {events.length === 0 ? (
         <Text style={styles.subtitle}>No events found.</Text>
@@ -251,7 +274,7 @@ export default function EventsScreen() {
       )}
 
       <TouchableOpacity
-        style={[styles.fab, { bottom: tabBarHeight + 16 }]}
+        style={[styles.fab, { bottom: bottomTabBarHeight + 16 }]}
         onPress={() => router.push("/eventcreation")}
       >
         <Ionicons name="add" size={28} color="white" />
@@ -262,7 +285,13 @@ export default function EventsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  title: { fontSize: 24, fontWeight: "bold", marginTop: 30, textAlign: "center", color: "#000" },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 30,
+    textAlign: "center",
+    color: "#000",
+  },
   subtitle: { fontSize: 16, marginTop: 10, textAlign: "center", color: "gray" },
   listContainer: { padding: 20 },
   eventItem: {

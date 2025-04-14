@@ -21,7 +21,7 @@ import ScreenContainer from "@/components/ScreenContainer";
 
 export default function CreateEventScreen() {
   return (
-    <ScreenContainer>
+    <ScreenContainer insideTabs={true}>
       <ScrollView
         nestedScrollEnabled={true}
         contentContainerStyle={styles.scrollContainer}

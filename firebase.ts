@@ -6,12 +6,13 @@ import { getStorage } from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA-gxx4VuJtcFzbBRC7GjdpAzbUfXK6wT8",
-  authDomain: "fir-eventease.firebaseapp.com",
-  projectId: "fir-eventease",
-  storageBucket: "fir-eventease.appspot.com", // Fixed incorrect storage bucket URL
-  messagingSenderId: "903802502171",
-  appId: "1:903802502171:web:9503f7b177b99a6ce1ccbe",
+  apiKey: "AIzaSyAU63KmJtx0Qo6NM9YyDmAprqmsyg5VAaU",
+  authDomain: "eventease-9ee72.firebaseapp.com",
+  projectId: "eventease-9ee72",
+  storageBucket: "eventease-9ee72.firebasestorage.app",
+  messagingSenderId: "19212825958",
+  appId: "1:19212825958:web:37b60b12fcf36d609144a7",
+  measurementId: "G-YFFDNCZFE7"
 };
 
 // Initialize Firebase
