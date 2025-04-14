@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -61,10 +61,12 @@ export default function AddVendorScreen() {
     }
 
     try {
-      await addDoc(collection(db, "vendors"), {
+      const docRef = await addDoc(collection(db, "vendors"), {
         ...vendor,
         rating: parseFloat(vendor.rating),
       });
+      // Store the document ID as the vendor ID
+      await updateDoc(docRef, { id: docRef.id });
       Alert.alert("Success", "Vendor added successfully.");
       setVendor({
         name: "",

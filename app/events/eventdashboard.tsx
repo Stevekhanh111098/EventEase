@@ -117,32 +117,30 @@ export default function EventDashboard() {
       collection(db, "eventVendors"),
       where("eventId", "==", eventId)
     );
-    const unsubscribeVendors = onSnapshot(vendorsQuery, (snapshot) => {
-      const fetchedVendors = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setSelectedVendors(fetchedVendors);
-    });
+    const unsubscribeVendors = onSnapshot(vendorsQuery, async (snapshot) => {
+      const fetchedVendorIds = snapshot.docs.map((doc) => doc.data().vendorId);
 
-    const availableVendorsQuery = query(collection(db, "vendors"));
-    const unsubscribeAvailableVendors = onSnapshot(
-      availableVendorsQuery,
-      (snapshot) => {
-        const fetchedVendors = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setVendors(fetchedVendors);
+      if (fetchedVendorIds.length > 0) {
+        // Query the "vendors" collection to get all matching vendor objects in a single query
+        const vendorsQuery = query(
+          collection(db, "vendors"),
+          where("id", "in", fetchedVendorIds)
+        );
+        const vendorSnapshot = await getDocs(vendorsQuery);
+        const vendorDocs = vendorSnapshot.docs.map((doc) => doc.data());
+
+        setSelectedVendors(vendorDocs); // Set the fetched vendor objects
+      } else {
+        setSelectedVendors([]); // No vendors found
+        console.log("No vendors found for this event.");
       }
-    );
+    });
 
     return () => {
       unsubscribeEvent();
       unsubscribeExpenses();
       unsubscribeTasks();
       unsubscribeVendors();
-      unsubscribeAvailableVendors();
     };
   }, [eventId]);
 
@@ -306,7 +304,10 @@ export default function EventDashboard() {
         where("eventId", "==", eventId),
         where("vendorId", "==", vendorId)
       );
+
+      console.log("Vendor Doc Query:", eventId, vendorId);
       const snapshot = await getDocs(vendorDoc);
+
       snapshot.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
@@ -506,10 +507,13 @@ export default function EventDashboard() {
 
           <Card style={styles.card}>
             <Text style={styles.subtitle}>Selected Vendors</Text>
+            {selectedVendors.length === 0 && (
+              <Text>No vendors selected for this event.</Text>
+            )}
             {selectedVendors.map((vendor, index) => (
               <View key={index} style={styles.vendorItem}>
                 <Text>{vendor.name}</Text>
-                <Text>Status: {vendor.status}</Text>
+                <Text>Status: Booked</Text>
                 <TouchableOpacity
                   onPress={() => handleRemoveVendor(vendor.id)}
                   style={styles.removeButton}

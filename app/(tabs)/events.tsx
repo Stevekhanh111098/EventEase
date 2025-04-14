@@ -72,7 +72,7 @@ export default function EventsScreen() {
     hideEndTimePicker();
   };
 
-  let unsubscribe: (() => void) | null = null; // Declare unsubscribe variable
+  let unsubscribe: (() => void) | undefined;
 
   useEffect(() => {
     const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
@@ -88,7 +88,7 @@ export default function EventsScreen() {
     });
 
     return () => {
-      if (unsubscribe) unsubscribe(); // Cleanup on unmount
+      if(unsubscribe) unsubscribe();
     };
   }, []);
 
