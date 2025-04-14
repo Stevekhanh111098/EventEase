@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { router } from "expo-router";
 import ScreenContainer from "@/components/ScreenContainer";
 import { Card } from "react-native-paper";
+import { MaterialIcons } from "@expo/vector-icons";
 
 type EventDetails = {
   name: string;
@@ -428,28 +429,54 @@ export default function EventDashboard() {
                     ? format(task.deadline.toDate(), "MMM dd, yyyy")
                     : "N/A"}
                 </Text>
-                <Text>
-                  Status: {task.isCompleted ? "Completed" : "Pending"}
-                </Text>
-                {!task.isCompleted && (
-                  <TouchableOpacity
-                    onPress={async () => {
-                      try {
-                        await updateDoc(doc(db, "tasks", task.id), {
-                          isCompleted: true,
-                        });
-                      } catch (error) {
-                        console.error(
-                          "Failed to mark task as completed:",
-                          error
-                        );
-                      }
+                <View style={styles.taskDetailsContainer}>
+                  <Text>
+                    Status: {task.isCompleted ? "Completed" : "Pending"}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
-                    style={styles.completeButton}
                   >
-                    <Text style={styles.buttonText}>Mark as Completed</Text>
-                  </TouchableOpacity>
-                )}
+                    {!task.isCompleted && (
+                      <TouchableOpacity
+                        onPress={async () => {
+                          try {
+                            await updateDoc(doc(db, "tasks", task.id), {
+                              isCompleted: true,
+                            });
+                          } catch (error) {
+                            console.error(
+                              "Failed to mark task as completed:",
+                              error
+                            );
+                          }
+                        }}
+                        style={styles.iconButton}
+                      >
+                        <MaterialIcons
+                          name="check-circle"
+                          size={32}
+                          color="#4CAF50"
+                        />
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                      onPress={async () => {
+                        try {
+                          await deleteDoc(doc(db, "tasks", task.id));
+                        } catch (error) {
+                          console.error("Failed to delete task:", error);
+                        }
+                      }}
+                      style={styles.iconButton}
+                    >
+                      <MaterialIcons name="delete" size={32} color="#FF3B30" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
             ))}
             <View style={styles.progressContainer}>
@@ -477,13 +504,6 @@ export default function EventDashboard() {
             </TouchableOpacity>
           </Card>
 
-          <TouchableOpacity
-            onPress={() => handleSelectVendors(eventId)}
-            style={styles.selectVendorsButton}
-          >
-            <Text style={styles.buttonText}>Select Vendors</Text>
-          </TouchableOpacity>
-
           <Card style={styles.card}>
             <Text style={styles.subtitle}>Selected Vendors</Text>
             {selectedVendors.map((vendor, index) => (
@@ -498,6 +518,13 @@ export default function EventDashboard() {
                 </TouchableOpacity>
               </View>
             ))}
+
+            <TouchableOpacity
+              onPress={() => handleSelectVendors(eventId)}
+              style={styles.selectVendorsButton}
+            >
+              <Text style={styles.buttonText}>Select Vendors</Text>
+            </TouchableOpacity>
           </Card>
         </View>
       </ScrollView>
@@ -626,5 +653,16 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginTop: 20,
+  },
+  iconButton: {
+    backgroundColor: "transparent",
+    padding: 5,
+    borderRadius: 5,
+    marginTop: 5,
+  },
+  taskDetailsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 });
