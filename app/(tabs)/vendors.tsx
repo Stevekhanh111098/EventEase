@@ -12,6 +12,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 import { Ionicons } from "@expo/vector-icons";
+import DropDownPicker from "react-native-dropdown-picker";
 
 export default function VendorDiscoveryScreen() {
   const router = useRouter();
@@ -34,6 +35,33 @@ export default function VendorDiscoveryScreen() {
     eventType: "",
   });
 
+  const [filterType, setFilterType] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterItems] = useState([
+    { label: "Caterer", value: "caterer" },
+    { label: "Photographer", value: "photographer" },
+    { label: "Decorator", value: "decorator" },
+    { label: "Venue", value: "venue" },
+    { label: "DJ", value: "dj" },
+    { label: "Musician", value: "musician" },
+    { label: "Planner", value: "planner" },
+    { label: "Florist", value: "florist" },
+    { label: "Rental Services", value: "rental_services" },
+    { label: "Transportation", value: "transportation" },
+    { label: "Makeup Artist", value: "makeup_artist" },
+    { label: "Baker", value: "baker" },
+    { label: "Security", value: "security" },
+  ]);
+
+  const [filterEventOpen, setFilterEventOpen] = useState(false);
+  const [eventTypeItems] = useState([
+    { label: "Wedding", value: "wedding" },
+    { label: "Birthday", value: "birthday" },
+    { label: "Corporate", value: "corporate" },
+    { label: "Concert", value: "concert" },
+    { label: "Festival", value: "festival" },
+  ]);
+
   useEffect(() => {
     const fetchVendors = async () => {
       const vendorQuery = query(collection(db, "vendors"));
@@ -54,6 +82,7 @@ export default function VendorDiscoveryScreen() {
 
   const filteredVendors = vendors.filter((vendor) => {
     return (
+      (!filterType || vendor.type === filterType) &&
       (!filters.type || vendor.type.includes(filters.type)) &&
       (!filters.budgetRange || vendor.budgetRange === filters.budgetRange) &&
       (!filters.location || vendor.location.includes(filters.location)) &&
@@ -66,12 +95,17 @@ export default function VendorDiscoveryScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Discover Vendors</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Vendor Type"
-          value={filters.type}
-          onChangeText={(text) => handleFilterChange("type", text)}
+        <DropDownPicker
+          open={filterOpen}
+          value={filterType}
+          items={filterItems}
+          setOpen={setFilterOpen}
+          setValue={setFilterType}
+          placeholder="Filter by Vendor Type"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
         />
+
         <TextInput
           style={styles.input}
           placeholder="Budget Range"
@@ -84,11 +118,20 @@ export default function VendorDiscoveryScreen() {
           value={filters.location}
           onChangeText={(text) => handleFilterChange("location", text)}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Event Type"
+        <DropDownPicker
+          open={filterEventOpen}
           value={filters.eventType}
-          onChangeText={(text) => handleFilterChange("eventType", text)}
+          items={eventTypeItems}
+          setOpen={setFilterEventOpen}
+          setValue={(callback) =>
+            setFilters((prev) => ({
+              ...prev,
+              eventType: callback(prev.eventType),
+            }))
+          }
+          placeholder="Filter by Event Type"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
         />
 
         <FlatList
@@ -156,5 +199,19 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
+  },
+  dropdown: {
+    backgroundColor: "#f0f0f0",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 8,
+    marginBottom: 10,
+  },
+  dropdownContainer: {
+    backgroundColor: "#f0f0f0",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
   },
 });
