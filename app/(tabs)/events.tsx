@@ -9,7 +9,11 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialIcons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import {
   collection,
   onSnapshot,
@@ -25,6 +29,7 @@ import ScreenContainer from "@/components/ScreenContainer";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Card } from "react-native-paper";
 import { format } from "date-fns";
+import { getAuth, signOut } from "firebase/auth";
 
 type EventItem = {
   id: string;
@@ -38,6 +43,7 @@ type EventItem = {
 
 export default function EventsScreen() {
   const router = useRouter();
+  const auth = getAuth();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [currentlyEditingId, setCurrentlyEditingId] = useState<string | null>(
     null
@@ -135,6 +141,22 @@ export default function EventsScreen() {
 
   const handleNavigateToDashboard = (eventId: string) => {
     router.push({ pathname: "/events/eventdashboard", params: { eventId } });
+  };
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        Alert.alert("Logout", "You have been logged out.", [
+          {
+            text: "OK",
+            onPress: () => router.push("/login"),
+          },
+        ]);
+      })
+      .catch((error) => {
+        console.error("Error during logout:", error);
+        Alert.alert("Error", "Failed to logout. Please try again.");
+      });
   };
 
   const renderItem = ({ item }: { item: EventItem }) => {
@@ -305,7 +327,12 @@ export default function EventsScreen() {
 
   return (
     <ScreenContainer insideTabs={true}>
-      <Text style={styles.title}>Event List</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Event List</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <MaterialCommunityIcons name="logout" size={24} color="#FF3B30" />
+        </TouchableOpacity>
+      </View>
       {events.length === 0 ? (
         <Text style={styles.subtitle}>No events found.</Text>
       ) : (
@@ -429,5 +456,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginTop: 30,
+  },
+  logoutButton: {
+    padding: 8,
   },
 });

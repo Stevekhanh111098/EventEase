@@ -30,6 +30,9 @@ export default function TabLayout() {
             case "vendors":
               iconName = focused ? "storefront" : "storefront-outline";
               break;
+            case "invitations":
+              iconName = focused ? "document" : "document-outline";
+              break;
             default:
               iconName = "help-circle-outline";
           }
@@ -44,6 +47,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="events" options={{ title: "Events" }} />
       <Tabs.Screen name="vendors" options={{ title: "Vendors" }} />
+      <Tabs.Screen name="invitations" options={{ title: "Invitations" }} />
     </Tabs>
   );
 }

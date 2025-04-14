@@ -25,31 +25,6 @@ export default function LoginScreen() {
       if (user) {
         Alert.alert("Welcome back!", "You are logged in as " + user.email);
         router.push("/(tabs)/events");
-
-        // Check for invitations in the guestLists collection
-        const guestListsRef = collection(db, "guestLists");
-        const q = query(guestListsRef, where("email", "==", user.email));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          Alert.alert("Invitation Found", "You have been invited to events.", [
-            {
-              text: "View Invitations",
-              onPress: () => {
-                querySnapshot.forEach((doc) => {
-                  const { eventId } = doc.data();
-                  const docId = doc.id; // Extract the document ID
-                  router.push({
-                    pathname: "/events/rsvp",
-                    params: { eventId, guestEmail: user.email, docId },
-                  });
-                });
-              },
-            },
-          ]);
-        } else {
-          console.log("No invitations found.");
-        }
       }
     });
 
@@ -65,32 +40,8 @@ export default function LoginScreen() {
 
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
-
-      // Check for invitations in the guestLists collection
-      const guestListsRef = collection(db, "guestLists");
-      const q = query(guestListsRef, where("email", "==", user.user.email));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        Alert.alert("Invitation Found", "You have been invited to events.", [
-          {
-            text: "View Invitations",
-            onPress: () => {
-              querySnapshot.forEach((doc) => {
-                const { eventId } = doc.data();
-                const docId = doc.id; // Extract the document ID
-                router.push({
-                  pathname: "/events/rsvp",
-                  params: { eventId, guestEmail: user.user.email, docId },
-                });
-              });
-            },
-          },
-        ]);
-      } else {
-        Alert.alert("Welcome", "Login successful.");
-        router.push("/menu");
-      }
+      Alert.alert("Welcome", `Login successful: ${user.user.email}`);
+      router.push("/menu");
     } catch (error) {
       console.error("Login failed:", error);
       Alert.alert("Error", "Login failed. Please try again.");
