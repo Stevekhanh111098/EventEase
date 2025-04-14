@@ -11,11 +11,22 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function VendorDiscoveryScreen() {
   const router = useRouter();
   const { eventId } = useLocalSearchParams();
-  const [vendors, setVendors] = useState<{ id: string; type?: string; budgetRange?: string; location?: string; eventTypes?: string[]; name?: string; rating?: number }[]>([]);
+  const [vendors, setVendors] = useState<
+    {
+      id: string;
+      type?: string;
+      budgetRange?: string;
+      location?: string;
+      eventTypes?: string[];
+      name?: string;
+      rating?: number;
+    }[]
+  >([]);
   const [filters, setFilters] = useState({
     type: "",
     budgetRange: "",
@@ -100,6 +111,13 @@ export default function VendorDiscoveryScreen() {
             </TouchableOpacity>
           )}
         />
+
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push("/events/addVendors")}
+        >
+          <Ionicons name="add" size={24} color="white" />
+        </TouchableOpacity>
       </View>
     </ScreenContainer>
   );
@@ -128,4 +146,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   vendorName: { fontSize: 18, fontWeight: "bold" },
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#007bff",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
