@@ -66,6 +66,7 @@ export default function EventDashboard() {
     deadline: "",
     isCompleted: false,
   });
+  const [selectedVendors, setSelectedVendors] = useState<any[]>([]);
 
   useEffect(() => {
     if (!eventId || typeof eventId !== "string") return;
@@ -111,10 +112,23 @@ export default function EventDashboard() {
       setTasks(fetchedTasks);
     });
 
+    const vendorsQuery = query(
+      collection(db, "vendors"),
+      where("eventId", "==", eventId)
+    );
+    const unsubscribeVendors = onSnapshot(vendorsQuery, (snapshot) => {
+      const fetchedVendors = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setSelectedVendors(fetchedVendors);
+    });
+
     return () => {
       unsubscribeEvent();
       unsubscribeExpenses();
       unsubscribeTasks();
+      unsubscribeVendors();
     };
   }, [eventId]);
 
@@ -350,6 +364,25 @@ export default function EventDashboard() {
               <Text style={styles.buttonText}>Add Task</Text>
             </TouchableOpacity>
           </Card>
+
+          <TouchableOpacity
+            onPress={() =>
+              router.push(`/events/vendordiscovery?eventId=${eventId}`)
+            }
+            style={styles.addButton}
+          >
+            <Text style={styles.buttonText}>🔍 View Vendors</Text>
+          </TouchableOpacity>
+
+          <Card style={styles.card}>
+            <Text style={styles.subtitle}>Selected Vendors</Text>
+            {selectedVendors.map((vendor, index) => (
+              <View key={index} style={styles.vendorItem}>
+                <Text>{vendor.name}</Text>
+                <Text>Status: {vendor.status}</Text>
+              </View>
+            ))}
+          </Card>
         </View>
       </ScrollView>
     </ScreenContainer>
@@ -436,5 +469,11 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 20,
     padding: 10,
+  },
+  vendorItem: {
+    backgroundColor: "#f9f9f9",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
   },
 });

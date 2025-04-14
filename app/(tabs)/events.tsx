@@ -275,7 +275,7 @@ export default function EventsScreen() {
 
       <TouchableOpacity
         style={[styles.fab, { bottom: bottomTabBarHeight + 16 }]}
-        onPress={() => router.push("/eventcreation")}
+        onPress={() => router.push("/events/createEvent")}
       >
         <Ionicons name="add" size={28} color="white" />
       </TouchableOpacity>
