@@ -8,7 +8,15 @@ import {
   Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { doc, getDoc, collection, addDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "@/firebase";
 
 export default function VendorDetailScreen() {
@@ -22,6 +30,7 @@ export default function VendorDetailScreen() {
     location: string;
     description: string;
   } | null>(null);
+  const [isBooked, setIsBooked] = useState(false);
 
   useEffect(() => {
     const fetchVendor = async () => {
@@ -52,6 +61,25 @@ export default function VendorDetailScreen() {
 
     fetchVendor();
   }, [vendorId]);
+
+  useEffect(() => {
+    const checkIfVendorBooked = async () => {
+      if (!eventId || !vendorId) return;
+
+      const q = query(
+        collection(db, "eventVendors"),
+        where("eventId", "==", eventId),
+        where("vendorId", "==", vendorId)
+      );
+
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        setIsBooked(true);
+      }
+    };
+
+    checkIfVendorBooked();
+  }, [eventId, vendorId]);
 
   const handleBookVendor = async () => {
     if (!eventId) {
@@ -85,14 +113,19 @@ export default function VendorDetailScreen() {
       <Text>Location: {vendor.location}</Text>
       <Text>Description: {vendor.description}</Text>
 
-      {eventId ? (
-        <TouchableOpacity onPress={handleBookVendor} style={styles.bookButton}>
-          <Text style={styles.buttonText}>📌 Book for This Event</Text>
-        </TouchableOpacity>
-      ) : (
+      {isBooked ? (
         <Text style={styles.warningText}>
-          Booking is disabled.
+          Vendor is already booked for this event.
         </Text>
+      ) : (
+        eventId && (
+          <TouchableOpacity
+            onPress={handleBookVendor}
+            style={styles.bookButton}
+          >
+            <Text style={styles.buttonText}>📌 Book for This Event</Text>
+          </TouchableOpacity>
+        )
       )}
     </ScrollView>
   );

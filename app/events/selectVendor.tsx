@@ -11,11 +11,11 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
-import { Ionicons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 
-export default function VendorDiscoveryScreen() {
+export default function SelectVendorScreen() {
   const router = useRouter();
+  const { eventId } = useLocalSearchParams();
   const [vendors, setVendors] = useState<
     {
       id: string;
@@ -93,11 +93,11 @@ export default function VendorDiscoveryScreen() {
   });
 
   const handleVendorClick = (vendorId) => {
-    router.push(`/events/vendorDetail?vendorId=${vendorId}`);
+    router.push(`/events/vendorDetail?vendorId=${vendorId}&eventId=${eventId}`);
   };
 
   return (
-    <ScreenContainer insideTabs={true}>
+    <ScreenContainer insideTabs={false}>
       <View style={styles.container}>
         <Text style={styles.title}>Discover Vendors</Text>
 
@@ -164,13 +164,6 @@ export default function VendorDiscoveryScreen() {
             </TouchableOpacity>
           )}
         />
-
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => router.push("/events/addVendors")}
-        >
-          <Ionicons name="add" size={24} color="white" />
-        </TouchableOpacity>
       </View>
     </ScreenContainer>
   );

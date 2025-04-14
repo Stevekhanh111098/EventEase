@@ -83,7 +83,6 @@ export default function EventDashboard() {
           budget: data.budget,
           guestList: data.guestList || [],
         });
-        console.log("Fetched guestList:", data.guestList);
         setGuestList(data.guestList || []);
         setTotalBudget(data.budget || 0);
       }
@@ -114,7 +113,7 @@ export default function EventDashboard() {
     });
 
     const vendorsQuery = query(
-      collection(db, "vendors"),
+      collection(db, "eventVendors"),
       where("eventId", "==", eventId)
     );
     const unsubscribeVendors = onSnapshot(vendorsQuery, (snapshot) => {
@@ -302,7 +301,7 @@ export default function EventDashboard() {
     router.push(`/events/addtask?eventId=${eventId}`);
 
   const handleSelectVendors = (eventId) => {
-    router.push(`/vendors?eventId=${eventId}`);
+    router.push(`/events/selectVendor?eventId=${eventId}`);
   };
 
   return (

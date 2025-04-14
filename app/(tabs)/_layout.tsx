@@ -42,7 +42,6 @@ export default function TabLayout() {
         }),
       })}
     >
-      {/* <Tabs.Screen name="index" options={{ title: "Home" }} /> */}
       <Tabs.Screen name="events" options={{ title: "Events" }} />
       <Tabs.Screen name="vendors" options={{ title: "Vendors" }} />
     </Tabs>
