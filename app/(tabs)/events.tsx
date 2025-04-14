@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import {
   collection,
   onSnapshot,
@@ -23,6 +23,8 @@ import { db } from "@/firebase";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ScreenContainer from "@/components/ScreenContainer";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { Card } from "react-native-paper";
+import { format } from "date-fns";
 
 type EventItem = {
   id: string;
@@ -46,6 +48,7 @@ export default function EventsScreen() {
   const [editedEvent, setEditedEvent] = useState<Partial<EventItem>>({});
   const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
   const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
   const showStartTimePicker = () => setStartTimePickerVisible(true);
   const hideStartTimePicker = () => setStartTimePickerVisible(false);
@@ -137,125 +140,166 @@ export default function EventsScreen() {
   const renderItem = ({ item }: { item: EventItem }) => {
     const isEditing = currentlyEditingId === item.id;
 
+    const formatTime = (time: string) => {
+      const date = new Date(time);
+      return format(date, "hh:mm a");
+    };
+
     return (
-      <View style={styles.eventItem}>
-        {isEditing ? (
-          <>
-            <TextInput
-              value={editedEvent.name}
-              onChangeText={(text) =>
-                setEditedEvent((prev) => ({ ...prev, name: text }))
-              }
-              style={styles.input}
-              placeholder="Name"
-            />
-            <TextInput
-              value={editedEvent.date}
-              onChangeText={(text) =>
-                setEditedEvent((prev) => ({ ...prev, date: text }))
-              }
-              style={styles.input}
-              placeholder="Date"
-            />
-            <TextInput
-              value={editedEvent.location}
-              onChangeText={(text) =>
-                setEditedEvent((prev) => ({ ...prev, location: text }))
-              }
-              style={styles.input}
-              placeholder="Location"
-            />
-            <TextInput
-              value={editedEvent.budget}
-              onChangeText={(text) =>
-                setEditedEvent((prev) => ({ ...prev, budget: text }))
-              }
-              style={styles.input}
-              placeholder="Budget"
-              keyboardType="numeric"
-            />
-            <TouchableOpacity onPress={showStartTimePicker}>
+      <Card style={styles.eventCard}>
+        <View style={styles.eventItem}>
+          {isEditing ? (
+            <>
               <TextInput
-                value={
-                  editedEvent.start
-                    ? new Date(editedEvent.start).toLocaleTimeString()
-                    : ""
+                value={editedEvent.name}
+                onChangeText={(text) =>
+                  setEditedEvent((prev) => ({ ...prev, name: text }))
                 }
-                editable={false} // Disable manual typing
                 style={styles.input}
-                placeholder="Start Time"
-                pointerEvents="none" // Prevent touch events on the TextInput
+                placeholder="Name"
               />
-            </TouchableOpacity>
-            <DateTimePickerModal
-              isVisible={isStartTimePickerVisible}
-              mode="time"
-              onConfirm={handleConfirmStartTime}
-              onCancel={hideStartTimePicker}
-            />
-            <TouchableOpacity onPress={showEndTimePicker}>
-              <TextInput
-                value={
-                  editedEvent.end
-                    ? new Date(editedEvent.end).toLocaleTimeString()
-                    : ""
-                }
-                editable={false} // Disable manual typing
-                style={styles.input}
-                placeholder="End Time"
-                pointerEvents="none" // Prevent touch events on the TextInput
-              />
-            </TouchableOpacity>
-            <DateTimePickerModal
-              isVisible={isEndTimePickerVisible}
-              mode="time"
-              onConfirm={handleConfirmEndTime}
-              onCancel={hideEndTimePicker}
-            />
-            <View style={styles.buttonRow}>
-              <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-                <Text style={styles.buttonText}>Save</Text>
+              <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
+                <TextInput
+                  value={
+                    editedEvent.date
+                      ? new Date(editedEvent.date).toLocaleDateString()
+                      : ""
+                  }
+                  editable={false} // Disable manual typing
+                  style={styles.input}
+                  placeholder="Date"
+                  pointerEvents="none" // Prevent touch events on the TextInput
+                />
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setCurrentlyEditingId(null); // Cancel editing
-                  setEditedEvent({}); // Reset edited event
+              <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                date={
+                  editedEvent.date ? new Date(editedEvent.date) : new Date()
+                }
+                onConfirm={(selectedDate) => {
+                  setEditedEvent((prev) => ({
+                    ...prev,
+                    date: selectedDate.toISOString(),
+                  }));
+                  setDatePickerVisible(false);
                 }}
-                style={styles.cancelButton}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
+                onCancel={() => setDatePickerVisible(false)}
+              />
+              <TextInput
+                value={editedEvent.location}
+                onChangeText={(text) =>
+                  setEditedEvent((prev) => ({ ...prev, location: text }))
+                }
+                style={styles.input}
+                placeholder="Location"
+              />
+              <TextInput
+                value={editedEvent.budget}
+                onChangeText={(text) =>
+                  setEditedEvent((prev) => ({ ...prev, budget: text }))
+                }
+                style={styles.input}
+                placeholder="Budget"
+                keyboardType="numeric"
+              />
+              <TouchableOpacity onPress={showStartTimePicker}>
+                <TextInput
+                  value={
+                    editedEvent.start
+                      ? new Date(editedEvent.start).toLocaleTimeString()
+                      : ""
+                  }
+                  editable={false} // Disable manual typing
+                  style={styles.input}
+                  placeholder="Start Time"
+                  pointerEvents="none" // Prevent touch events on the TextInput
+                />
               </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <>
-            <TouchableOpacity
-              onPress={() => handleNavigateToDashboard(item.id)}
-            >
-              <Text style={styles.eventName}>{item.name}</Text>
-            </TouchableOpacity>
-            <Text>Date: {item.date}</Text>
-            <Text>Location: {item.location}</Text>
-            <Text>Budget: ${item.budget}</Text>
-            <Text>Start Time: {item.start}</Text>
-            <Text>End Time: {item.end}</Text>
-            <View style={styles.buttonRow}>
+              <DateTimePickerModal
+                isVisible={isStartTimePickerVisible}
+                mode="time"
+                date={
+                  editedEvent.start ? new Date(editedEvent.start) : new Date()
+                }
+                onConfirm={handleConfirmStartTime}
+                onCancel={hideStartTimePicker}
+              />
+              <TouchableOpacity onPress={showEndTimePicker}>
+                <TextInput
+                  value={
+                    editedEvent.end
+                      ? new Date(editedEvent.end).toLocaleTimeString()
+                      : ""
+                  }
+                  editable={false} // Disable manual typing
+                  style={styles.input}
+                  placeholder="End Time"
+                  pointerEvents="none" // Prevent touch events on the TextInput
+                />
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={isEndTimePickerVisible}
+                mode="time"
+                date={editedEvent.end ? new Date(editedEvent.end) : new Date()}
+                onConfirm={handleConfirmEndTime}
+                onCancel={hideEndTimePicker}
+              />
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  onPress={handleSave}
+                  style={styles.saveButton}
+                >
+                  <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setCurrentlyEditingId(null); // Cancel editing
+                    setEditedEvent({}); // Reset edited event
+                  }}
+                  style={styles.cancelButton}
+                >
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <View style={styles.eventDetailsContainer}>
               <TouchableOpacity
-                onPress={() => handleEdit(item)}
-                style={styles.editButton}
+                onPress={() => handleNavigateToDashboard(item.id)}
+                style={styles.eventDetails}
               >
-                <Text style={styles.buttonText}>Edit</Text>
+                <Text style={styles.eventName}>{item.name}</Text>
+                <Text style={styles.eventDetail}>Date: {item.date}</Text>
+                <Text style={styles.eventDetail}>
+                  Location: {item.location}
+                </Text>
+                <Text style={styles.eventDetail}>Budget: ${item.budget}</Text>
+                <Text style={styles.eventDetail}>
+                  Start Time: {formatTime(item.start)}
+                </Text>
+                <Text style={styles.eventDetail}>
+                  End Time: {formatTime(item.end)}
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleDelete(item.id)}
-                style={styles.deleteButton}
-              >
-                <Text style={styles.buttonText}>Delete</Text>
-              </TouchableOpacity>
+              <View style={styles.iconButtonContainer}>
+                <TouchableOpacity
+                  onPress={() => handleEdit(item)}
+                  style={styles.iconButton}
+                >
+                  <MaterialIcons name="edit" size={24} color="#007AFF" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleDelete(item.id)}
+                  style={styles.iconButton}
+                >
+                  <MaterialIcons name="delete" size={24} color="#FF3B30" />
+                </TouchableOpacity>
+              </View>
             </View>
-          </>
-        )}
-      </View>
+          )}
+        </View>
+      </Card>
     );
   };
 
@@ -295,7 +339,6 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 16, marginTop: 10, textAlign: "center", color: "gray" },
   listContainer: { padding: 20 },
   eventItem: {
-    backgroundColor: "#f0f0f0",
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
@@ -357,5 +400,34 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+  },
+  eventDetailsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  eventDetails: {
+    flex: 1,
+  },
+  eventDetail: {
+    fontSize: 14,
+    color: "#666",
+  },
+  iconButtonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconButton: {
+    marginLeft: 10,
+  },
+  eventCard: {
+    marginBottom: 15,
+    borderRadius: 10,
+    elevation: 3,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
 });

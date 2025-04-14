@@ -62,6 +62,8 @@ export default function VendorDiscoveryScreen() {
     { label: "Festival", value: "festival" },
   ]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     const fetchVendors = async () => {
       const vendorQuery = query(collection(db, "vendors"));
@@ -86,9 +88,14 @@ export default function VendorDiscoveryScreen() {
       (!filters.type || vendor.type.includes(filters.type)) &&
       (!filters.budgetRange || vendor.budgetRange === filters.budgetRange) &&
       (!filters.location || vendor.location.includes(filters.location)) &&
-      (!filters.eventType || vendor.eventTypes.includes(filters.eventType))
+      (!filters.eventType || vendor.eventTypes.includes(filters.eventType)) &&
+      vendor.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
+
+  const handleVendorClick = (vendorId) => {
+    router.push(`/events/vendorDetail?vendorId=${vendorId}&eventId=${eventId}`);
+  };
 
   return (
     <ScreenContainer insideTabs={true}>
@@ -134,23 +141,27 @@ export default function VendorDiscoveryScreen() {
           dropDownContainerStyle={styles.dropdownContainer}
         />
 
+        <TextInput
+          style={styles.input}
+          placeholder="Search Vendors"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+
         <FlatList
           data={filteredVendors}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
+              onPress={() => handleVendorClick(item.id)}
               style={styles.vendorCard}
-              onPress={() =>
-                router.push(
-                  `/events/vendordetail?vendorId=${item.id}&eventId=${eventId}`
-                )
-              }
             >
               <Text style={styles.vendorName}>{item.name}</Text>
-              <Text>Type: {item.type}</Text>
-              <Text>Budget: {item.budgetRange}</Text>
-              <Text>Rating: {item.rating}</Text>
-              <Text>Location: {item.location}</Text>
+              <Text style={styles.vendorDetail}>Type: {item.type}</Text>
+              <Text style={styles.vendorDetail}>
+                Budget: {item.budgetRange}
+              </Text>
+              <Text style={styles.vendorDetail}>Rating: {item.rating} ⭐</Text>
             </TouchableOpacity>
           )}
         />

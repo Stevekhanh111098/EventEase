@@ -14,14 +14,36 @@ import { db } from "@/firebase";
 export default function VendorDetailScreen() {
   const router = useRouter();
   const { vendorId, eventId } = useLocalSearchParams();
-  const [vendor, setVendor] = useState(null);
+  const [vendor, setVendor] = useState<{
+    name: string;
+    type: string;
+    budgetRange: string;
+    rating: number;
+    location: string;
+    description: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchVendor = async () => {
+      if (!vendorId) {
+        Alert.alert("Error", "Vendor ID is missing.");
+        router.back();
+        return;
+      }
+
       const vendorRef = doc(db, "vendors", vendorId);
       const vendorSnapshot = await getDoc(vendorRef);
       if (vendorSnapshot.exists()) {
-        setVendor(vendorSnapshot.data());
+        setVendor(
+          vendorSnapshot.data() as {
+            name: string;
+            type: string;
+            budgetRange: string;
+            rating: number;
+            location: string;
+            description: string;
+          }
+        );
       } else {
         Alert.alert("Error", "Vendor not found.");
         router.back();
@@ -32,6 +54,11 @@ export default function VendorDetailScreen() {
   }, [vendorId]);
 
   const handleBookVendor = async () => {
+    if (!eventId) {
+      Alert.alert("Error", "Event ID is missing. Cannot book vendor.");
+      return;
+    }
+
     try {
       await addDoc(collection(db, "eventVendors"), {
         eventId,
@@ -58,9 +85,15 @@ export default function VendorDetailScreen() {
       <Text>Location: {vendor.location}</Text>
       <Text>Description: {vendor.description}</Text>
 
-      <TouchableOpacity onPress={handleBookVendor} style={styles.bookButton}>
-        <Text style={styles.buttonText}>📌 Book for This Event</Text>
-      </TouchableOpacity>
+      {eventId ? (
+        <TouchableOpacity onPress={handleBookVendor} style={styles.bookButton}>
+          <Text style={styles.buttonText}>📌 Book for This Event</Text>
+        </TouchableOpacity>
+      ) : (
+        <Text style={styles.warningText}>
+          Booking is disabled.
+        </Text>
+      )}
     </ScrollView>
   );
 }
@@ -75,4 +108,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  warningText: { color: "red", marginTop: 20, fontWeight: "bold" },
 });

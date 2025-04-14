@@ -44,7 +44,6 @@ type Guest = {
 };
 
 export default function EventDashboard() {
-
   const { eventId } = useLocalSearchParams();
   const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
   const [guestList, setGuestList] = useState<Guest[]>([]);
@@ -302,6 +301,10 @@ export default function EventDashboard() {
   const navigateToAddTask = () =>
     router.push(`/events/addtask?eventId=${eventId}`);
 
+  const handleSelectVendors = (eventId) => {
+    router.push(`/vendors?eventId=${eventId}`);
+  };
+
   return (
     <ScreenContainer insideTabs={false}>
       <ScrollView nestedScrollEnabled={true}>
@@ -429,12 +432,10 @@ export default function EventDashboard() {
           </Card>
 
           <TouchableOpacity
-            onPress={() =>
-              router.push(`/events/vendordiscovery?eventId=${eventId}`)
-            }
-            style={styles.addButton}
+            onPress={() => handleSelectVendors(eventId)}
+            style={styles.selectVendorsButton}
           >
-            <Text style={styles.buttonText}>🔍 View Vendors</Text>
+            <Text style={styles.buttonText}>Select Vendors</Text>
           </TouchableOpacity>
 
           <Card style={styles.card}>
@@ -448,33 +449,6 @@ export default function EventDashboard() {
                   style={styles.removeButton}
                 >
                   <Text style={styles.buttonText}>Remove</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </Card>
-
-          <Card style={styles.card}>
-            <Text style={styles.subtitle}>Available Vendors</Text>
-            {vendors.map((vendor, index) => (
-              <View key={index} style={styles.vendorCard}>
-                <View style={styles.vendorHeader}>
-                  <Text style={styles.vendorName}>{vendor.name}</Text>
-                  <Text style={styles.vendorType}>{vendor.type}</Text>
-                </View>
-                <Text style={styles.vendorDetail}>
-                  Budget: {vendor.budgetRange}
-                </Text>
-                <Text style={styles.vendorDetail}>
-                  Rating: {vendor.rating} ⭐
-                </Text>
-                <Text style={styles.vendorDetail}>
-                  Location: {vendor.location}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => handleSelectVendor(vendor.id)}
-                  style={styles.selectButton}
-                >
-                  <Text style={styles.buttonText}>Select</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -600,5 +574,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
+  },
+  selectVendorsButton: {
+    backgroundColor: "#007AFF",
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
   },
 });
