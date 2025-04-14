@@ -72,10 +72,12 @@ export default function EventsScreen() {
     hideEndTimePicker();
   };
 
+  let unsubscribe: (() => void) | null = null; // Declare unsubscribe variable
+
   useEffect(() => {
     const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    unsubscribe = onSnapshot(q, (snapshot) => {
       const fetched: EventItem[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...(doc.data() as Omit<EventItem, "id">),
@@ -85,7 +87,9 @@ export default function EventsScreen() {
       setEvents(fetched);
     });
 
-    return () => unsubscribe(); // Cleanup on unmount
+    return () => {
+      if (unsubscribe) unsubscribe(); // Cleanup on unmount
+    };
   }, []);
 
   const handleEdit = (event: EventItem) => {
@@ -144,6 +148,7 @@ export default function EventsScreen() {
   };
 
   const handleLogout = () => {
+    if (unsubscribe) unsubscribe(); // Unsubscribe from Firestore listener
     signOut(auth)
       .then(() => {
         Alert.alert("Logout", "You have been logged out.", [

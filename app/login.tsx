@@ -9,10 +9,9 @@ import {
   TouchableOpacity,
   useColorScheme,
 } from "react-native";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "@/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase";
 import { useRouter } from "expo-router";
-import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -21,16 +20,13 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        Alert.alert("Welcome back!", "You are logged in as " + user.email);
-        router.push("/(tabs)/events");
-      }
-    });
-
-    // Cleanup the listener on component unmount
-    return () => unsubscribe();
-  }, []);
+    const user = auth.currentUser;
+    if (user) {
+      // Auto-login if the user is already authenticated
+      Alert.alert("Welcome back", `${user.displayName} is auto-logged in!`);
+      router.push("/(tabs)/events");
+    }
+  });
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -39,9 +35,9 @@ export default function LoginScreen() {
     }
 
     try {
-      const user = await signInWithEmailAndPassword(auth, email, password);
-      Alert.alert("Welcome", `Login successful: ${user.user.email}`);
-      router.push("/menu");
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert("Success", "Login successful!");
+      router.push("/(tabs)/events");
     } catch (error) {
       console.error("Login failed:", error);
       Alert.alert("Error", "Login failed. Please try again.");
