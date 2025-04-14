@@ -17,6 +17,8 @@ import {
   addDoc,
   query,
   where,
+  getDocs,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase";
 import { ProgressBar } from "react-native-paper";
@@ -42,7 +44,6 @@ type Guest = {
 };
 
 export default function EventDashboard() {
-  console.log("EventDashboard component loaded");
 
   const { eventId } = useLocalSearchParams();
   const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
@@ -67,6 +68,7 @@ export default function EventDashboard() {
     isCompleted: false,
   });
   const [selectedVendors, setSelectedVendors] = useState<any[]>([]);
+  const [vendors, setVendors] = useState<any[]>([]);
 
   useEffect(() => {
     if (!eventId || typeof eventId !== "string") return;
@@ -124,11 +126,24 @@ export default function EventDashboard() {
       setSelectedVendors(fetchedVendors);
     });
 
+    const availableVendorsQuery = query(collection(db, "vendors"));
+    const unsubscribeAvailableVendors = onSnapshot(
+      availableVendorsQuery,
+      (snapshot) => {
+        const fetchedVendors = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setVendors(fetchedVendors);
+      }
+    );
+
     return () => {
       unsubscribeEvent();
       unsubscribeExpenses();
       unsubscribeTasks();
       unsubscribeVendors();
+      unsubscribeAvailableVendors();
     };
   }, [eventId]);
 
@@ -213,6 +228,54 @@ export default function EventDashboard() {
       await updateDoc(doc(db, "tasks", taskId), { isCompleted: !isCompleted });
     } catch (error) {
       console.error("Failed to update task completion:", error);
+    }
+  };
+
+  const handleSelectVendor = async (vendorId) => {
+    try {
+      const selectedVendor = vendors.find((vendor) => vendor.id === vendorId);
+      if (!selectedVendor) {
+        Alert.alert("Error", "Vendor not found.");
+        return;
+      }
+
+      const updatedSelectedVendors = [...selectedVendors, selectedVendor];
+      setSelectedVendors(updatedSelectedVendors);
+
+      await addDoc(collection(db, "eventVendors"), {
+        eventId,
+        vendorId,
+        status: "selected",
+      });
+
+      Alert.alert("Success", "Vendor selected successfully.");
+    } catch (error) {
+      console.error("Failed to select vendor:", error);
+      Alert.alert("Error", "Failed to select vendor.");
+    }
+  };
+
+  const handleRemoveVendor = async (vendorId) => {
+    try {
+      const updatedSelectedVendors = selectedVendors.filter(
+        (vendor) => vendor.id !== vendorId
+      );
+      setSelectedVendors(updatedSelectedVendors);
+
+      const vendorDoc = query(
+        collection(db, "eventVendors"),
+        where("eventId", "==", eventId),
+        where("vendorId", "==", vendorId)
+      );
+      const snapshot = await getDocs(vendorDoc);
+      snapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+
+      Alert.alert("Success", "Vendor removed successfully.");
+    } catch (error) {
+      console.error("Failed to remove vendor:", error);
+      Alert.alert("Error", "Failed to remove vendor.");
     }
   };
 
@@ -380,6 +443,39 @@ export default function EventDashboard() {
               <View key={index} style={styles.vendorItem}>
                 <Text>{vendor.name}</Text>
                 <Text>Status: {vendor.status}</Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveVendor(vendor.id)}
+                  style={styles.removeButton}
+                >
+                  <Text style={styles.buttonText}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </Card>
+
+          <Card style={styles.card}>
+            <Text style={styles.subtitle}>Available Vendors</Text>
+            {vendors.map((vendor, index) => (
+              <View key={index} style={styles.vendorCard}>
+                <View style={styles.vendorHeader}>
+                  <Text style={styles.vendorName}>{vendor.name}</Text>
+                  <Text style={styles.vendorType}>{vendor.type}</Text>
+                </View>
+                <Text style={styles.vendorDetail}>
+                  Budget: {vendor.budgetRange}
+                </Text>
+                <Text style={styles.vendorDetail}>
+                  Rating: {vendor.rating} ⭐
+                </Text>
+                <Text style={styles.vendorDetail}>
+                  Location: {vendor.location}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleSelectVendor(vendor.id)}
+                  style={styles.selectButton}
+                >
+                  <Text style={styles.buttonText}>Select</Text>
+                </TouchableOpacity>
               </View>
             ))}
           </Card>
@@ -475,5 +571,34 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
+  },
+  vendorCard: {
+    backgroundColor: "#f9f9f9",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  vendorHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
+  vendorName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  vendorType: {
+    fontSize: 14,
+    color: "#666",
+  },
+  vendorDetail: {
+    fontSize: 14,
+    color: "#333",
+  },
+  selectButton: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
   },
 });

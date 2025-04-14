@@ -25,7 +25,7 @@ export default function TabLayout() {
               iconName = focused ? "home" : "home-outline";
               break;
             case "events":
-              iconName = focused ? "list" : "list-outline";
+              iconName = focused ? "calendar" : "calendar-outline";
               break;
             case "vendors":
               iconName = focused ? "storefront" : "storefront-outline";
