@@ -12,6 +12,12 @@ import {
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase";
 import { useRouter } from "expo-router";
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+
+// Required for web auth
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -58,6 +64,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+      
       <TextInput
         style={[styles.input, colorScheme === "dark" && styles.darkInput]}
         placeholder="Password"
@@ -66,9 +73,18 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
+      
       <Button title="Login" onPress={handleLogin} />
 
-      {/* Forgot Password Link */}
+    <TouchableOpacity
+      style={[styles.googleButton]}
+      onPress={() => promptAsync()}
+      disabled={!request}
+    >
+      <Text style={styles.googleButtonText}>Continue with Google</Text>
+    </TouchableOpacity>
+
+      {/* Rest of your original UI remains unchanged */}
       <TouchableOpacity onPress={() => router.push("/reset-password")}>
         <Text
           style={[
@@ -80,7 +96,6 @@ export default function LoginScreen() {
         </Text>
       </TouchableOpacity>
 
-      {/* Sign Up Link */}
       <View style={styles.signupContainer}>
         <Text
           style={[styles.signupText, colorScheme === "dark" && styles.darkText]}
@@ -101,6 +116,7 @@ export default function LoginScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -130,9 +146,32 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   darkInput: {
+    borderColor: '#ccc',
+    color: '#000',
     borderColor: "#ccc",
     color: "#000",
   },
+  googleButton: {
+    width: '30%',
+    backgroundColor: '#1f90ff',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+  },
+  googleButtonText: {
+    color: "white",
+    fontWeight: 'bold',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  forgotPasswordText: {
+    marginTop: 10,
+    color: "blue",
+    textAlign: 'center',
   signupText: {
     color: "#000",
   },
@@ -145,8 +184,11 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: "blue",
   },
+  darkText: {
+    color: '#000',
+  },
   darkLinkText: {
-    color: "blue", // Ensure link text is visible in dark mode
+    color: "blue",
   },
   forgotPasswordText: {
     marginTop: 10,
