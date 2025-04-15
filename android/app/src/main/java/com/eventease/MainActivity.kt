@@ -1,4 +1,4 @@
-package com.anonymous.EventEase
+package com.eventease
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

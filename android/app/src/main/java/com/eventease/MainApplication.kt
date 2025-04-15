@@ -1,4 +1,4 @@
-package com.anonymous.EventEase
+package com.eventease
 
 import android.app.Application
 import android.content.res.Configuration

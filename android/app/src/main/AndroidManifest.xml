@@ -26,6 +26,9 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.anonymous.EventEase"/>
+        <data android:scheme="eventease"/>
+        <data android:scheme="com.eventease"/>
+        <data android:scheme="exp+eventease"/>
       </intent-filter>
     </activity>
   </application>

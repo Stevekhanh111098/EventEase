@@ -12,9 +12,9 @@ import {
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase";
 import { useRouter } from "expo-router";
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 
 // Required for web auth
 WebBrowser.maybeCompleteAuthSession();
@@ -33,6 +33,32 @@ export default function LoginScreen() {
       router.push("/(tabs)/events");
     }
   });
+
+  // Google Auth Request
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId:
+      "903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com",
+    androidClientId: "YOUR_ANDROID_CLIENT_ID",
+    iosClientId:
+      "903802502171-j51muuliu5j9ifr8dmn10f2ne0acavlp.apps.googleusercontent.com",
+    webClientId:
+      "903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com",
+  });
+
+  // Handle Google Sign-In response
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(auth, credential)
+        .then(() => {
+          router.push("/(tabs)/events");
+        })
+        .catch((error) => {
+          Alert.alert("Authentication Error", error.message);
+        });
+    }
+  }, [response]);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -64,7 +90,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      
+
       <TextInput
         style={[styles.input, colorScheme === "dark" && styles.darkInput]}
         placeholder="Password"
@@ -73,16 +99,16 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      
+
       <Button title="Login" onPress={handleLogin} />
 
-    <TouchableOpacity
-      style={[styles.googleButton]}
-      onPress={() => promptAsync()}
-      disabled={!request}
-    >
-      <Text style={styles.googleButtonText}>Continue with Google</Text>
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.googleButton]}
+        onPress={() => promptAsync()}
+        disabled={!request}
+      >
+        <Text style={styles.googleButtonText}>Continue with Google</Text>
+      </TouchableOpacity>
 
       {/* Rest of your original UI remains unchanged */}
       <TouchableOpacity onPress={() => router.push("/reset-password")}>
@@ -117,7 +143,6 @@ export default function LoginScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,24 +171,22 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   darkInput: {
-    borderColor: '#ccc',
-    color: '#000',
     borderColor: "#ccc",
     color: "#000",
   },
   googleButton: {
-    width: '30%',
-    backgroundColor: '#1f90ff',
+    width: "30%",
+    backgroundColor: "#1f90ff",
     padding: 10,
     borderRadius: 5,
     marginVertical: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     height: 40,
   },
   googleButtonText: {
     color: "white",
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -171,7 +194,8 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     marginTop: 10,
     color: "blue",
-    textAlign: 'center',
+    textAlign: "center",
+  },
   signupText: {
     color: "#000",
   },
@@ -184,15 +208,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: "blue",
   },
-  darkText: {
-    color: '#000',
-  },
   darkLinkText: {
     color: "blue",
-  },
-  forgotPasswordText: {
-    marginTop: 10,
-    color: "blue", // Match the link text color
-    textAlign: "center", // Center the text
   },
 });

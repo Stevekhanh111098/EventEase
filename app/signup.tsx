@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity, useColorScheme } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/firebase';
+import React, { useState } from "react";
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  useColorScheme,
+} from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase";
 import { useRouter } from "expo-router";
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import * as AuthSession from "expo-auth-session";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -18,22 +28,34 @@ export default function SignupScreen() {
 
   // Google Auth Request (same config as login)
   const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: '903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com',
-    webClientId: '903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com',
+    expoClientId:
+      "903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com",
+    iosClientId:
+      "903802502171-j51muuliu5j9ifr8dmn10f2ne0acavlp.apps.googleusercontent.com",
+    webClientId:
+      "903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com",
+    // redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
   });
+
+  // Log the redirect URI for debugging
+  // console.log("Redirect URI:", AuthSession.makeRedirectUri({ useProxy: true }));
 
   // Handle Google Sign-In response
   React.useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
-        .then(() => {
-          router.push("/(tabs)/events");
-        })
-        .catch((error) => {
-          Alert.alert("Authentication Error", error.message);
-        });
+    if (response?.type === "success") {
+      const id_token = response?.authentication?.idToken;
+      if (id_token) {
+        const credential = GoogleAuthProvider.credential(id_token);
+        signInWithCredential(auth, credential)
+          .then(() => {
+            router.push("/(tabs)/events");
+          })
+          .catch((error) => {
+            Alert.alert("Authentication Error", error.message);
+          });
+      } else {
+        Alert.alert("Authentication Error", "No ID token received.");
+      }
     }
   }, [response]);
 
@@ -53,36 +75,38 @@ export default function SignupScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, colorScheme === 'dark' && styles.darkText]}>Sign Up</Text>
-      
+      <Text style={[styles.title, colorScheme === "dark" && styles.darkText]}>
+        Sign Up
+      </Text>
+
       <TextInput
-        style={[styles.input, colorScheme === 'dark' && styles.darkInput]}
+        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
         placeholder="Email"
-        placeholderTextColor={colorScheme === 'dark' ? "#ccc" : "#999"}
+        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      
+
       <TextInput
-        style={[styles.input, colorScheme === 'dark' && styles.darkInput]}
+        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
         placeholder="Password"
-        placeholderTextColor={colorScheme === 'dark' ? "#ccc" : "#999"}
+        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
 
       <TextInput
-        style={[styles.input, colorScheme === 'dark' && styles.darkInput]}
+        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
         placeholder="Confirm Password"
-        placeholderTextColor={colorScheme === 'dark' ? "#ccc" : "#999"}
+        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
       />
-      
+
       <Button title="Sign Up" onPress={handleSignup} />
 
       <TouchableOpacity
@@ -94,9 +118,20 @@ export default function SignupScreen() {
       </TouchableOpacity>
 
       <View style={styles.loginContainer}>
-        <Text style={[styles.loginText, colorScheme === 'dark' && styles.darkText]}>Already have an account?</Text>
+        <Text
+          style={[styles.loginText, colorScheme === "dark" && styles.darkText]}
+        >
+          Already have an account?
+        </Text>
         <TouchableOpacity onPress={() => router.push("/login")}>
-          <Text style={[styles.linkText, colorScheme === 'dark' && styles.darkLinkText]}>Login</Text>
+          <Text
+            style={[
+              styles.linkText,
+              colorScheme === "dark" && styles.darkLinkText,
+            ]}
+          >
+            Login
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -107,48 +142,48 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 24,
-    color: '#000',
+    color: "#000",
   },
   input: {
     height: 40,
-    width: '80%',
-    borderColor: '#ccc',
+    width: "80%",
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
-    color: '#000',
+    color: "#000",
   },
   darkInput: {
-    borderColor: '#ccc',
-    color: '#000',
+    borderColor: "#ccc",
+    color: "#000",
   },
   googleButton: {
-    width: '30%',
-    backgroundColor: '#1f90ff',
+    width: "50%",
+    backgroundColor: "#1f90ff",
     padding: 10,
     borderRadius: 5,
     marginVertical: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     height: 40,
   },
   googleButtonText: {
     color: "white",
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 15,
   },
   linkText: {
@@ -156,7 +191,7 @@ const styles = StyleSheet.create({
     color: "blue",
   },
   darkText: {
-    color: '#000',
+    color: "#000",
   },
   darkLinkText: {
     color: "blue",
