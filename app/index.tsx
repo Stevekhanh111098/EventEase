@@ -1,42 +1,90 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
 import { useRouter } from "expo-router";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   return (
     <View style={styles.container}>
       {/* 📸 70% Image Section */}
-      <ImageBackground source={require("../logo/welcome_photo.jpg")} style={styles.imageContainer} resizeMode="cover">
+      <ImageBackground
+        source={require("../logo/welcome_photo.jpg")}
+        style={styles.imageContainer}
+        resizeMode="cover"
+      >
         <View style={styles.overlay} />
 
         {/* Logo & App Name */}
         <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>E</Text>
+          <View
+            style={[
+              styles.logoContainer,
+              { backgroundColor: themedColors.secondary },
+            ]}
+          >
+            <Text style={[styles.logoText, { color: themedColors.accent }]}>
+              E
+            </Text>
           </View>
-          <Text style={styles.logoTitle}>EventEase</Text>
+          <Text style={[styles.logoTitle, { color: themedColors.background }]}>
+            EventEase
+          </Text>
         </View>
 
         {/* Welcome Message */}
-        <Text style={styles.title}>Welcome to EventEase!</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: themedColors.background }]}>
+          Welcome to EventEase!
+        </Text>
+        <Text style={[styles.subtitle, { color: themedColors.surface }]}>
           Create, Organize, and Manage your Events with Ease.
         </Text>
       </ImageBackground>
 
       {/* 📌 30% Bottom Login Section with Curved Top */}
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/login")}>
-          <Text style={styles.buttonText}>Get Started</Text>
+      <View
+        style={[
+          styles.bottomContainer,
+          { backgroundColor: themedColors.surface },
+        ]}
+      >
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: themedColors.primary }]}
+          onPress={() => router.push("/login")}
+        >
+          <Text style={[styles.buttonText, { color: themedColors.background }]}>
+            Get Started
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, styles.secondaryButton]}
+          style={[
+            styles.button,
+            styles.secondaryButton,
+            { backgroundColor: themedColors.secondary },
+          ]}
           onPress={() => router.push("/signup")}
         >
-          <Text style={[styles.buttonText, styles.secondaryButtonText]}>Create an account</Text>
+          <Text
+            style={[
+              styles.buttonText,
+              styles.secondaryButtonText,
+              { color: themedColors.accent },
+            ]}
+          >
+            Create an account
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -67,7 +115,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#A7E2E2",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 10,
@@ -75,28 +122,23 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#004D4D",
   },
   logoTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#FFF",
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#FFF",
     textAlign: "center",
   },
   subtitle: {
     fontSize: 15,
-    color: "#DDD",
     textAlign: "center",
     paddingHorizontal: 20,
   },
   bottomContainer: {
     flex: 3, // 30% of the screen
-    backgroundColor: "#E0F2F1",
     borderTopLeftRadius: 30, //  More pronounced curve
     borderTopRightRadius: 30, //  More pronounced curve
     alignItems: "center",
@@ -111,7 +153,6 @@ const styles = StyleSheet.create({
     elevation: 5, //  Shadow for Android
   },
   button: {
-    backgroundColor: "#007AFF",
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
@@ -120,14 +161,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonText: {
-    color: "#FFF",
     fontSize: 16,
     fontWeight: "bold",
   },
-  secondaryButton: {
-    backgroundColor: "#E0E0E0",
-  },
-  secondaryButtonText: {
-    color: "#333",
-  },
+  secondaryButton: {},
+  secondaryButtonText: {},
 });

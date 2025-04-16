@@ -18,6 +18,8 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "@/firebase";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function VendorDetailScreen() {
   const router = useRouter();
@@ -31,6 +33,9 @@ export default function VendorDetailScreen() {
     description: string;
   } | null>(null);
   const [isBooked, setIsBooked] = useState(false);
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   useEffect(() => {
     const fetchVendor = async () => {
@@ -105,14 +110,36 @@ export default function VendorDetailScreen() {
   if (!vendor) return null;
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>{vendor.name}</Text>
-      <Text>Type: {vendor.type}</Text>
-      <Text>Budget Range: {vendor.budgetRange}</Text>
-      <Text>Rating: {vendor.rating}</Text>
-      <Text>Location: {vendor.location}</Text>
-      <Text>Description: {vendor.description}</Text>
-
+    <ScrollView
+      style={[styles.container, { backgroundColor: themedColors.background }]}
+    >
+      <Text style={[styles.title, { color: themedColors.primary }]}>
+        Vendor Details
+      </Text>
+      {vendor && (
+        <View
+          style={[styles.vendorCard, { backgroundColor: themedColors.surface }]}
+        >
+          <Text style={[styles.vendorName, { color: themedColors.text }]}>
+            {vendor.name}
+          </Text>
+          <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
+            Type: {vendor.type}
+          </Text>
+          <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
+            Budget: {vendor.budgetRange}
+          </Text>
+          <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
+            Location: {vendor.location}
+          </Text>
+          <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
+            Rating: {vendor.rating} ⭐
+          </Text>
+          <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
+            Description: {vendor.description}
+          </Text>
+        </View>
+      )}
       {isBooked ? (
         <Text style={styles.warningText}>
           Vendor is already booked for this event.
@@ -121,9 +148,12 @@ export default function VendorDetailScreen() {
         eventId && (
           <TouchableOpacity
             onPress={handleBookVendor}
-            style={styles.bookButton}
+            style={[
+              styles.bookButton,
+              { backgroundColor: themedColors.primary },
+            ]}
           >
-            <Text style={styles.buttonText}>📌 Book for This Event</Text>
+            <Text style={styles.buttonText}>Book for This Event</Text>
           </TouchableOpacity>
         )
       )}
@@ -132,10 +162,16 @@ export default function VendorDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
+  container: { flex: 1, padding: 20 },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
+  vendorCard: {
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  vendorName: { fontSize: 18, fontWeight: "bold" },
+  vendorDetail: { fontSize: 14 },
   bookButton: {
-    backgroundColor: "#007AFF",
     padding: 15,
     borderRadius: 10,
     marginTop: 20,

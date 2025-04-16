@@ -18,8 +18,14 @@ import moment from "moment";
 import { getAuth } from "firebase/auth";
 import DropDownPicker from "react-native-dropdown-picker";
 import ScreenContainer from "@/components/ScreenContainer";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function CreateEventScreen() {
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
+
   return (
     <ScreenContainer insideTabs={false}>
       <ScrollView
@@ -27,7 +33,9 @@ export default function CreateEventScreen() {
         contentContainerStyle={styles.scrollContainer}
       >
         <View style={styles.headerContainer}>
-          <Text style={styles.header}>Create New Event</Text>
+          <Text style={[styles.header, { color: themedColors.primary }]}>
+            Create New Event
+          </Text>
         </View>
         <EventForm />
       </ScrollView>
@@ -145,17 +153,38 @@ const EventForm = () => {
     }
   };
 
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
+
   return (
-    <View style={styles.formContainer}>
-      <Text style={styles.label}>Event Name</Text>
+    <View
+      style={[
+        styles.formContainer,
+        { backgroundColor: themedColors.background },
+      ]}
+    >
+      <Text style={[styles.label, { color: themedColors.primary }]}>
+        Event Name
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Enter event name"
+        placeholderTextColor={themedColors.secondary}
         value={eventName}
         onChangeText={setEventName}
       />
 
-      <Text style={styles.label}>Event Date</Text>
+      <Text style={[styles.label, { color: themedColors.primary }]}>
+        Event Date
+      </Text>
       <DateTimePicker
         testID="datePicker"
         value={eventDate}
@@ -166,7 +195,9 @@ const EventForm = () => {
 
       <View style={styles.rowContainer}>
         <View style={styles.timePickerContainer}>
-          <Text style={styles.label}>Start Time</Text>
+          <Text style={[styles.label, { color: themedColors.primary }]}>
+            Start Time
+          </Text>
           <DateTimePicker
             testID="startTimePicker"
             value={startTime}
@@ -178,7 +209,9 @@ const EventForm = () => {
         </View>
 
         <View style={styles.timePickerContainer}>
-          <Text style={styles.label}>End Time</Text>
+          <Text style={[styles.label, { color: themedColors.primary }]}>
+            End Time
+          </Text>
           <DateTimePicker
             testID="endTimePicker"
             value={endTime}
@@ -190,42 +223,84 @@ const EventForm = () => {
         </View>
       </View>
 
-      <Text style={styles.label}>Event Location</Text>
+      <Text style={[styles.label, { color: themedColors.primary }]}>
+        Event Location
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Enter event location"
+        placeholderTextColor={themedColors.secondary}
         value={eventLocation}
         onChangeText={setEventLocation}
       />
 
-      <Text style={styles.label}>Event Budget ($)</Text>
+      <Text style={[styles.label, { color: themedColors.primary }]}>
+        Event Budget ($)
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="e.g., 1000"
+        placeholderTextColor={themedColors.secondary}
         keyboardType="numeric"
         value={eventBudget}
         onChangeText={setEventBudget}
       />
 
-      <Text style={styles.label}>Description</Text>
+      <Text style={[styles.label, { color: themedColors.primary }]}>
+        Description
+      </Text>
       <TextInput
-        style={styles.descriptionInput}
+        style={[
+          styles.descriptionInput,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Enter event description"
+        placeholderTextColor={themedColors.secondary}
         value={description}
         onChangeText={setDescription}
         multiline
         numberOfLines={4}
       />
 
-      <Text style={styles.label}>Hosted By</Text>
+      <Text style={[styles.label, { color: themedColors.primary }]}>
+        Hosted By
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Enter host name"
+        placeholderTextColor={themedColors.secondary}
         value={hostedBy}
         onChangeText={setHostedBy}
       />
 
-      <Text style={styles.label}>Event Type</Text>
+      <Text style={[styles.label, { color: themedColors.primary }]}>
+        Event Type
+      </Text>
       <View style={styles.pickerContainer}>
         <DropDownPicker
           open={open}
@@ -235,21 +310,43 @@ const EventForm = () => {
           setValue={setEventType}
           setItems={setItems}
           placeholder="Select Event Type"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
+          style={[
+            styles.dropdown,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
+          dropDownContainerStyle={[
+            styles.dropdownContainer,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
         />
       </View>
       {eventType === "other" && (
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Specify event type"
+          placeholderTextColor={themedColors.secondary}
           value={customEventType}
           onChangeText={setCustomEventType}
         />
       )}
 
       <View style={styles.switchContainer}>
-        <Text style={styles.label}>Private Event?</Text>
+        <Text style={[styles.label, { color: themedColors.primary }]}>
+          Private Event?
+        </Text>
         <Switch
           trackColor={{ false: "#767577", true: "#81b0ff" }}
           thumbColor={isPrivate ? "#007AFF" : "#f4f3f4"}
@@ -257,16 +354,21 @@ const EventForm = () => {
           onValueChange={setIsPrivate}
           value={isPrivate}
         />
-        <Text style={styles.switchLabel}>
+        <Text style={[styles.switchLabel, { color: themedColors.text }]}>
           {isPrivate ? "Yes (Invite Only)" : "No (Public)"}
         </Text>
       </View>
 
       <TouchableOpacity
-        style={styles.buttonContainer}
+        style={[
+          styles.buttonContainer,
+          { backgroundColor: themedColors.primary },
+        ]}
         onPress={handleCreateEvent}
       >
-        <Text style={styles.button}>Create Event</Text>
+        <Text style={[styles.button, { color: themedColors.background }]}>
+          Create Event
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -291,7 +393,6 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#000",
   },
   formContainer: {
     width: "100%",
@@ -300,21 +401,16 @@ const styles = StyleSheet.create({
   input: {
     height: 45,
     width: "100%",
-    backgroundColor: "#f0f0f0",
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 15,
     fontSize: 16,
-    color: "#333",
   },
 
   inputTouchable: {
     height: 45,
     width: "100%",
-    backgroundColor: "#f0f0f0",
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 15,
@@ -324,30 +420,24 @@ const styles = StyleSheet.create({
 
   inputText: {
     fontSize: 16,
-    color: "#333",
   },
   descriptionInput: {
     minHeight: 100,
     width: "100%",
-    backgroundColor: "#f0f0f0",
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingTop: 10,
     marginBottom: 15,
     fontSize: 16,
-    color: "#333",
     textAlignVertical: "top",
   },
   label: {
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
-    color: "#555",
   },
   buttonContainer: {
-    backgroundColor: "#007AFF",
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
@@ -362,24 +452,25 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
 
   pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 15,
-    width: "100%",
-    backgroundColor: "#f0f0f0",
-    justifyContent: "center",
-    height: 50,
+    zIndex: 1000, // Ensure it's above other elements
+    marginBottom: 16,
   },
-  picker: {
-    width: "100%",
-    height: 50,
+
+  dropdown: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 48,
+  },
+
+  dropdownContainer: {
+    borderWidth: 1,
+    borderRadius: 8,
   },
   rowContainer: {
     flexDirection: "row",
@@ -402,25 +493,6 @@ const styles = StyleSheet.create({
   switchLabel: {
     marginLeft: 10,
     fontSize: 15,
-    color: "#555",
     flexShrink: 1,
-  },
-  pickerContainer: {
-    zIndex: 1000, // Ensure it's above other elements
-    marginBottom: 16,
-  },
-
-  dropdown: {
-    backgroundColor: "#fff",
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 48,
-  },
-
-  dropdownContainer: {
-    borderColor: "#ccc",
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
   },
 });

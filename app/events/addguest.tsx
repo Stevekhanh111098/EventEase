@@ -11,6 +11,8 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function AddGuest() {
   const router = useRouter();
@@ -22,6 +24,10 @@ export default function AddGuest() {
     meal: "",
     vip: false,
   });
+
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   const handleAddGuest = async () => {
     if (!guest.name.trim() || !guest.email.trim()) {
@@ -46,28 +52,58 @@ export default function AddGuest() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add Guest</Text>
+    <View
+      style={[styles.container, { backgroundColor: themedColors.background }]}
+    >
+      <Text style={[styles.title, { color: themedColors.primary }]}>
+        Add Guest
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Guest Name"
+        placeholderTextColor={themedColors.secondary}
         value={guest.name}
         onChangeText={(text) => setGuest((prev) => ({ ...prev, name: text }))}
       />
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Guest Email"
+        placeholderTextColor={themedColors.secondary}
         value={guest.email}
         onChangeText={(text) => setGuest((prev) => ({ ...prev, email: text }))}
       />
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Meal Preference"
+        placeholderTextColor={themedColors.secondary}
         value={guest.meal}
         onChangeText={(text) => setGuest((prev) => ({ ...prev, meal: text }))}
       />
       <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>VIP</Text>
+        <Text style={[styles.switchLabel, { color: themedColors.text }]}>
+          VIP
+        </Text>
         <Switch
           value={guest.vip}
           onValueChange={(value) =>
@@ -75,20 +111,23 @@ export default function AddGuest() {
           }
         />
       </View>
-      <TouchableOpacity onPress={handleAddGuest} style={styles.addButton}>
-        <Text style={styles.buttonText}>Add Guest</Text>
+      <TouchableOpacity
+        style={[styles.addButton, { backgroundColor: themedColors.primary }]}
+        onPress={handleAddGuest}
+      >
+        <Text style={[styles.buttonText, { color: themedColors.background }]}>
+          Add Guest
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
   input: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
@@ -100,10 +139,9 @@ const styles = StyleSheet.create({
   },
   switchLabel: { fontSize: 16, marginRight: 10 },
   addButton: {
-    backgroundColor: "#007AFF",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
   },
-  buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  buttonText: { fontWeight: "bold" },
 });

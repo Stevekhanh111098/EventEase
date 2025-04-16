@@ -11,6 +11,8 @@ import { collection, addDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 import DropDownPicker from "react-native-dropdown-picker";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function AddVendorScreen() {
   const [vendor, setVendor] = useState({
@@ -54,6 +56,10 @@ export default function AddVendorScreen() {
   const [open, setOpen] = useState(false);
   const [openType, setOpenType] = useState(false);
 
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
+
   const handleAddVendor = async () => {
     if (!vendor.name || !vendor.type || !vendor.location) {
       Alert.alert("Error", "Name, type, and location are required.");
@@ -85,11 +91,23 @@ export default function AddVendorScreen() {
 
   return (
     <ScreenContainer insideTabs={false}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Add Vendor</Text>
+      <View
+        style={[styles.container, { backgroundColor: themedColors.background }]}
+      >
+        <Text style={[styles.title, { color: themedColors.primary }]}>
+          Add Vendor
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Vendor Name"
+          placeholderTextColor={themedColors.secondary}
           value={vendor.name}
           onChangeText={(text) =>
             setVendor((prev) => ({ ...prev, name: text }))
@@ -105,37 +123,81 @@ export default function AddVendorScreen() {
           }
           multiple={false}
           placeholder="Select Vendor Type"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
+          style={[
+            styles.dropdown,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
+          dropDownContainerStyle={[
+            styles.dropdownContainer,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
         />
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Location"
+          placeholderTextColor={themedColors.secondary}
           value={vendor.location}
           onChangeText={(text) =>
             setVendor((prev) => ({ ...prev, location: text }))
           }
         />
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Budget Range"
+          placeholderTextColor={themedColors.secondary}
           value={vendor.budgetRange}
           onChangeText={(text) =>
             setVendor((prev) => ({ ...prev, budgetRange: text }))
           }
         />
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Rating (1-5)"
           keyboardType="numeric"
+          placeholderTextColor={themedColors.secondary}
           value={vendor.rating}
           onChangeText={(text) =>
             setVendor((prev) => ({ ...prev, rating: text }))
           }
         />
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Description"
+          placeholderTextColor={themedColors.secondary}
           value={vendor.description}
           onChangeText={(text) =>
             setVendor((prev) => ({ ...prev, description: text }))
@@ -156,12 +218,29 @@ export default function AddVendorScreen() {
           min={0}
           max={7}
           placeholder="Select Event Types"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
+          style={[
+            styles.dropdown,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
+          dropDownContainerStyle={[
+            styles.dropdownContainer,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
         />
 
-        <TouchableOpacity onPress={handleAddVendor} style={styles.addButton}>
-          <Text style={styles.buttonText}>Add Vendor</Text>
+        <TouchableOpacity
+          onPress={handleAddVendor}
+          style={[styles.addButton, { backgroundColor: themedColors.primary }]}
+        >
+          <Text style={[styles.buttonText, { color: themedColors.background }]}>
+            Add Vendor
+          </Text>
         </TouchableOpacity>
       </View>
     </ScreenContainer>
@@ -169,37 +248,30 @@ export default function AddVendorScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
   input: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
   },
   dropdown: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
   },
   dropdownContainer: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
   },
   addButton: {
-    backgroundColor: "#007AFF",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
   },
-  buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  buttonText: { textAlign: "center", fontWeight: "bold" },
 });

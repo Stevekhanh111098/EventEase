@@ -10,6 +10,8 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function AddExpense() {
   const router = useRouter();
@@ -42,20 +44,44 @@ export default function AddExpense() {
     }
   };
 
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add Expense</Text>
+    <View
+      style={[styles.container, { backgroundColor: themedColors.background }]}
+    >
+      <Text style={[styles.title, { color: themedColors.primary }]}>
+        Add Expense
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Category"
+        placeholderTextColor={themedColors.secondary}
         value={expense.category}
         onChangeText={(text) =>
           setExpense((prev) => ({ ...prev, category: text }))
         }
       />
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Amount"
+        placeholderTextColor={themedColors.secondary}
         keyboardType="numeric"
         value={expense.amount}
         onChangeText={(text) =>
@@ -63,36 +89,46 @@ export default function AddExpense() {
         }
       />
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+            color: themedColors.text,
+          },
+        ]}
         placeholder="Description"
+        placeholderTextColor={themedColors.secondary}
         value={expense.description}
         onChangeText={(text) =>
           setExpense((prev) => ({ ...prev, description: text }))
         }
       />
-      <TouchableOpacity onPress={handleAddExpense} style={styles.addButton}>
-        <Text style={styles.buttonText}>Add Expense</Text>
+      <TouchableOpacity
+        style={[styles.addButton, { backgroundColor: themedColors.primary }]}
+        onPress={handleAddExpense}
+      >
+        <Text style={[styles.buttonText, { color: themedColors.background }]}>
+          Add Expense
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
   input: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
   },
   addButton: {
-    backgroundColor: "#007AFF",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
   },
-  buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  buttonText: { fontWeight: "bold" },
 });

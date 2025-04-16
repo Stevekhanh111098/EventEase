@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
@@ -30,6 +31,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Card } from "react-native-paper";
 import { format } from "date-fns";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
+import { Colors } from "@/constants/Colors";
 
 type EventItem = {
   id: string;
@@ -170,6 +172,10 @@ export default function EventsScreen() {
       });
   };
 
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
+
   const renderItem = ({ item }: { item: EventItem }) => {
     const isEditing = currentlyEditingId === item.id;
 
@@ -179,7 +185,9 @@ export default function EventsScreen() {
     };
 
     return (
-      <Card style={styles.eventCard}>
+      <Card
+        style={[styles.eventCard, { backgroundColor: themedColors.surface }]}
+      >
         <View style={styles.eventItem}>
           {isEditing ? (
             <>
@@ -188,8 +196,16 @@ export default function EventsScreen() {
                 onChangeText={(text) =>
                   setEditedEvent((prev) => ({ ...prev, name: text }))
                 }
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: themedColors.background,
+                    borderColor: themedColors.border,
+                    color: themedColors.text,
+                  },
+                ]}
                 placeholder="Name"
+                placeholderTextColor={themedColors.secondary}
               />
               <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
                 <TextInput
@@ -198,10 +214,18 @@ export default function EventsScreen() {
                       ? new Date(editedEvent.date).toLocaleDateString()
                       : ""
                   }
-                  editable={false} // Disable manual typing
-                  style={styles.input}
+                  editable={false}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: themedColors.background,
+                      borderColor: themedColors.border,
+                      color: themedColors.text,
+                    },
+                  ]}
                   placeholder="Date"
-                  pointerEvents="none" // Prevent touch events on the TextInput
+                  placeholderTextColor={themedColors.secondary}
+                  pointerEvents="none"
                 />
               </TouchableOpacity>
               <DateTimePickerModal
@@ -224,16 +248,32 @@ export default function EventsScreen() {
                 onChangeText={(text) =>
                   setEditedEvent((prev) => ({ ...prev, location: text }))
                 }
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: themedColors.background,
+                    borderColor: themedColors.border,
+                    color: themedColors.text,
+                  },
+                ]}
                 placeholder="Location"
+                placeholderTextColor={themedColors.secondary}
               />
               <TextInput
                 value={editedEvent.budget}
                 onChangeText={(text) =>
                   setEditedEvent((prev) => ({ ...prev, budget: text }))
                 }
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: themedColors.background,
+                    borderColor: themedColors.border,
+                    color: themedColors.text,
+                  },
+                ]}
                 placeholder="Budget"
+                placeholderTextColor={themedColors.secondary}
                 keyboardType="numeric"
               />
               <TouchableOpacity onPress={showStartTimePicker}>
@@ -243,10 +283,18 @@ export default function EventsScreen() {
                       ? new Date(editedEvent.start).toLocaleTimeString()
                       : ""
                   }
-                  editable={false} // Disable manual typing
-                  style={styles.input}
+                  editable={false}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: themedColors.background,
+                      borderColor: themedColors.border,
+                      color: themedColors.text,
+                    },
+                  ]}
                   placeholder="Start Time"
-                  pointerEvents="none" // Prevent touch events on the TextInput
+                  placeholderTextColor={themedColors.secondary}
+                  pointerEvents="none"
                 />
               </TouchableOpacity>
               <DateTimePickerModal
@@ -265,10 +313,18 @@ export default function EventsScreen() {
                       ? new Date(editedEvent.end).toLocaleTimeString()
                       : ""
                   }
-                  editable={false} // Disable manual typing
-                  style={styles.input}
+                  editable={false}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: themedColors.background,
+                      borderColor: themedColors.border,
+                      color: themedColors.text,
+                    },
+                  ]}
                   placeholder="End Time"
-                  pointerEvents="none" // Prevent touch events on the TextInput
+                  placeholderTextColor={themedColors.secondary}
+                  pointerEvents="none"
                 />
               </TouchableOpacity>
               <DateTimePickerModal
@@ -281,7 +337,10 @@ export default function EventsScreen() {
               <View style={styles.buttonRow}>
                 <TouchableOpacity
                   onPress={handleSave}
-                  style={styles.saveButton}
+                  style={[
+                    styles.saveButton,
+                    { backgroundColor: themedColors.primary },
+                  ]}
                 >
                   <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
@@ -290,7 +349,10 @@ export default function EventsScreen() {
                     setCurrentlyEditingId(null); // Cancel editing
                     setEditedEvent({}); // Reset edited event
                   }}
-                  style={styles.cancelButton}
+                  style={[
+                    styles.cancelButton,
+                    { backgroundColor: themedColors.accent },
+                  ]}
                 >
                   <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
@@ -302,16 +364,32 @@ export default function EventsScreen() {
                 onPress={() => handleNavigateToDashboard(item.id)}
                 style={styles.eventDetails}
               >
-                <Text style={styles.eventName}>{item.name}</Text>
-                <Text style={styles.eventDetail}>Date: {item.date}</Text>
-                <Text style={styles.eventDetail}>
+                <Text style={[styles.eventName, { color: themedColors.text }]}>
+                  {item.name}
+                </Text>
+                <Text
+                  style={[styles.eventDetail, { color: themedColors.text }]}
+                >
+                  Date: {item.date}
+                </Text>
+                <Text
+                  style={[styles.eventDetail, { color: themedColors.text }]}
+                >
                   Location: {item.location}
                 </Text>
-                <Text style={styles.eventDetail}>Budget: ${item.budget}</Text>
-                <Text style={styles.eventDetail}>
+                <Text
+                  style={[styles.eventDetail, { color: themedColors.text }]}
+                >
+                  Budget: ${item.budget}
+                </Text>
+                <Text
+                  style={[styles.eventDetail, { color: themedColors.text }]}
+                >
                   Start Time: {formatTime(item.start)}
                 </Text>
-                <Text style={styles.eventDetail}>
+                <Text
+                  style={[styles.eventDetail, { color: themedColors.text }]}
+                >
                   End Time: {formatTime(item.end)}
                 </Text>
               </TouchableOpacity>
@@ -320,13 +398,21 @@ export default function EventsScreen() {
                   onPress={() => handleEdit(item)}
                   style={styles.iconButton}
                 >
-                  <MaterialIcons name="edit" size={24} color="#007AFF" />
+                  <MaterialIcons
+                    name="edit"
+                    size={24}
+                    color={themedColors.primary}
+                  />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => handleDelete(item.id)}
                   style={styles.iconButton}
                 >
-                  <MaterialIcons name="delete" size={24} color="#FF3B30" />
+                  <MaterialIcons
+                    name="delete"
+                    size={24}
+                    color={themedColors.accent}
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -337,15 +423,26 @@ export default function EventsScreen() {
   };
 
   return (
-    <ScreenContainer insideTabs={true}>
+    <ScreenContainer
+      insideTabs={true}
+      style={{ backgroundColor: themedColors.background }}
+    >
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Event List</Text>
+        <Text style={[styles.title, { color: themedColors.primary }]}>
+          Event List
+        </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <MaterialCommunityIcons name="logout" size={24} color="#FF3B30" />
+          <MaterialCommunityIcons
+            name="logout"
+            size={24}
+            color={themedColors.accent}
+          />
         </TouchableOpacity>
       </View>
       {events.length === 0 ? (
-        <Text style={styles.subtitle}>No events found.</Text>
+        <Text style={[styles.subtitle, { color: themedColors.secondary }]}>
+          No events found.
+        </Text>
       ) : (
         <FlatList
           data={events}
@@ -356,10 +453,16 @@ export default function EventsScreen() {
       )}
 
       <TouchableOpacity
-        style={[styles.fab, { bottom: bottomTabBarHeight + 16 }]}
+        style={[
+          styles.fab,
+          {
+            bottom: bottomTabBarHeight + 16,
+            backgroundColor: themedColors.primary,
+          },
+        ]}
         onPress={() => router.push("/events/createEvent")}
       >
-        <Ionicons name="add" size={28} color="white" />
+        <Ionicons name="add" size={28} color={themedColors.background} />
       </TouchableOpacity>
     </ScreenContainer>
   );

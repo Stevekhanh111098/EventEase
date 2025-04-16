@@ -11,6 +11,8 @@ import { Redirect, Stack } from "expo-router";
 
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
   const { user, loading } = useAuth();
 
   console.log("User in TabsLayout:", user);
@@ -21,10 +23,16 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: themedColors.primary,
+        tabBarInactiveTintColor: themedColors.icon,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
+        tabBarStyle: {
+          backgroundColor: themedColors.surface,
+          borderTopColor: themedColors.border,
+          ...Platform.select({ ios: { position: "absolute" }, default: {} }),
+        },
         tabBarIcon: ({ color, size, focused }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 
@@ -47,10 +55,6 @@ export default function TabsLayout() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarStyle: Platform.select({
-          ios: { position: "absolute" },
-          default: {},
-        }),
       })}
     >
       <Tabs.Screen name="events" options={{ title: "Events" }} />

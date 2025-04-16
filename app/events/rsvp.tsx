@@ -1,14 +1,25 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  useColorScheme,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase";
+import { Colors } from "@/constants/Colors";
 
 export default function RSVP() {
   const router = useRouter();
   const { eventId, guestEmail, docId } = useLocalSearchParams();
   const [rsvpStatus, setRsvpStatus] = useState("");
   const [eventName, setEventName] = useState("");
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   React.useEffect(() => {
     const fetchEventName = async () => {
@@ -44,35 +55,51 @@ export default function RSVP() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>RSVP for Event</Text>
-      <Text style={styles.subtitle}>Event: {eventName}</Text>
-      {/* <Text style={styles.subtitle}>Guest: {guestName}</Text> */}
-      <TouchableOpacity onPress={() => handleRSVP("Yes")} style={styles.button}>
-        <Text style={styles.buttonText}>Yes</Text>
+    <View
+      style={[styles.container, { backgroundColor: themedColors.background }]}
+    >
+      <Text style={[styles.title, { color: themedColors.primary }]}>
+        RSVP for Event
+      </Text>
+      <Text style={[styles.subtitle, { color: themedColors.text }]}>
+        Event: {eventName}
+      </Text>
+      <TouchableOpacity
+        onPress={() => handleRSVP("Yes")}
+        style={[styles.button, { backgroundColor: themedColors.primary }]}
+      >
+        <Text style={[styles.buttonText, { color: themedColors.background }]}>
+          Yes
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleRSVP("No")} style={styles.button}>
-        <Text style={styles.buttonText}>No</Text>
+      <TouchableOpacity
+        onPress={() => handleRSVP("No")}
+        style={[styles.button, { backgroundColor: themedColors.accent }]}
+      >
+        <Text style={[styles.buttonText, { color: themedColors.background }]}>
+          No
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => handleRSVP("Maybe")}
-        style={styles.button}
+        style={[styles.button, { backgroundColor: themedColors.secondary }]}
       >
-        <Text style={styles.buttonText}>Maybe</Text>
+        <Text style={[styles.buttonText, { color: themedColors.background }]}>
+          Maybe
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
   subtitle: { fontSize: 18, marginBottom: 20 },
   button: {
-    backgroundColor: "#007AFF",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
   },
-  buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  buttonText: { textAlign: "center", fontWeight: "bold" },
 });

@@ -16,6 +16,8 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { useAuth } from "@/hooks/useAuth";
+import { Colors } from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 // Required for web auth
 WebBrowser.maybeCompleteAuthSession();
@@ -26,6 +28,8 @@ export default function LoginScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const { user, loading } = useAuth();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   useEffect(() => {
     if (user) {
@@ -75,64 +79,75 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, colorScheme === "dark" && styles.darkText]}>
-        Login
-      </Text>
+    <View
+      style={[styles.container, { backgroundColor: themedColors.background }]}
+    >
+      <Text style={[styles.title, { color: themedColors.primary }]}>Login</Text>
       <TextInput
-        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
+        style={[
+          styles.input,
+          {
+            borderColor: themedColors.border,
+            color: themedColors.text,
+            backgroundColor: themedColors.surface,
+          },
+        ]}
         placeholder="Email"
-        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
+        placeholderTextColor={themedColors.secondary}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
       />
-
       <TextInput
-        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
+        style={[
+          styles.input,
+          {
+            borderColor: themedColors.border,
+            color: themedColors.text,
+            backgroundColor: themedColors.surface,
+          },
+        ]}
         placeholder="Password"
-        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
+        placeholderTextColor={themedColors.secondary}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-
-      <Button title="Login" onPress={handleLogin} />
-
       <TouchableOpacity
-        style={[styles.googleButton]}
+        style={[styles.loginButton, { backgroundColor: themedColors.primary }]}
+        onPress={handleLogin}
+      >
+        <Text
+          style={[styles.loginButtonText, { color: themedColors.background }]}
+        >
+          Login
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.googleButton, { backgroundColor: themedColors.accent }]}
         onPress={() => promptAsync()}
         disabled={!request}
       >
-        <Text style={styles.googleButtonText}>Continue with Google</Text>
+        <Text
+          style={[styles.googleButtonText, { color: themedColors.background }]}
+        >
+          Continue with Google
+        </Text>
       </TouchableOpacity>
-
-      {/* Rest of your original UI remains unchanged */}
       <TouchableOpacity onPress={() => router.push("/reset-password")}>
         <Text
-          style={[
-            styles.forgotPasswordText,
-            colorScheme === "dark" && styles.darkLinkText,
-          ]}
+          style={[styles.forgotPasswordText, { color: themedColors.primary }]}
         >
           Forgot Password?
         </Text>
       </TouchableOpacity>
-
       <View style={styles.signupContainer}>
-        <Text
-          style={[styles.signupText, colorScheme === "dark" && styles.darkText]}
-        >
+        <Text style={[styles.signupText, { color: themedColors.text }]}>
           Don't have an account?
         </Text>
         <TouchableOpacity onPress={() => router.push("/signup")}>
-          <Text
-            style={[
-              styles.linkText,
-              colorScheme === "dark" && styles.darkLinkText,
-            ]}
-          >
+          <Text style={[styles.linkText, { color: themedColors.primary }]}>
             Sign up
           </Text>
         </TouchableOpacity>
@@ -147,34 +162,34 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
     alignItems: "center",
-    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 24,
-    color: "#000",
-  },
-  darkText: {
-    color: "#000",
   },
   input: {
     height: 40,
     width: "80%",
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
-    color: "#000",
   },
-  darkInput: {
-    borderColor: "#ccc",
-    color: "#000",
+  loginButton: {
+    width: "80%",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 40,
+  },
+  loginButtonText: {
+    fontWeight: "bold",
   },
   googleButton: {
     width: "50%",
-    backgroundColor: "#1f90ff",
     padding: 10,
     borderRadius: 5,
     marginVertical: 8,
@@ -183,20 +198,13 @@ const styles = StyleSheet.create({
     height: 40,
   },
   googleButtonText: {
-    color: "white",
     fontWeight: "bold",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
   },
   forgotPasswordText: {
     marginTop: 10,
-    color: "blue",
     textAlign: "center",
   },
-  signupText: {
-    color: "#000",
-  },
+  signupText: {},
   signupContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -204,9 +212,5 @@ const styles = StyleSheet.create({
   },
   linkText: {
     marginLeft: 5,
-    color: "blue",
-  },
-  darkLinkText: {
-    color: "blue",
   },
 });

@@ -16,6 +16,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import * as AuthSession from "expo-auth-session";
+import { Colors } from "@/constants/Colors";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -25,6 +26,8 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   // Google Auth Request (same config as login)
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -74,62 +77,85 @@ export default function SignupScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, colorScheme === "dark" && styles.darkText]}>
+    <View
+      style={[styles.container, { backgroundColor: themedColors.background }]}
+    >
+      <Text style={[styles.title, { color: themedColors.primary }]}>
         Sign Up
       </Text>
-
       <TextInput
-        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
+        style={[
+          styles.input,
+          {
+            borderColor: themedColors.border,
+            color: themedColors.text,
+            backgroundColor: themedColors.surface,
+          },
+        ]}
         placeholder="Email"
-        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
+        placeholderTextColor={themedColors.secondary}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
       />
-
       <TextInput
-        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
+        style={[
+          styles.input,
+          {
+            borderColor: themedColors.border,
+            color: themedColors.text,
+            backgroundColor: themedColors.surface,
+          },
+        ]}
         placeholder="Password"
-        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
+        placeholderTextColor={themedColors.secondary}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-
       <TextInput
-        style={[styles.input, colorScheme === "dark" && styles.darkInput]}
+        style={[
+          styles.input,
+          {
+            borderColor: themedColors.border,
+            color: themedColors.text,
+            backgroundColor: themedColors.surface,
+          },
+        ]}
         placeholder="Confirm Password"
-        placeholderTextColor={colorScheme === "dark" ? "#ccc" : "#999"}
+        placeholderTextColor={themedColors.secondary}
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
       />
-
-      <Button title="Sign Up" onPress={handleSignup} />
-
       <TouchableOpacity
-        style={[styles.googleButton]}
+        style={[styles.signupButton, { backgroundColor: themedColors.primary }]}
+        onPress={handleSignup}
+      >
+        <Text
+          style={[styles.signupButtonText, { color: themedColors.background }]}
+        >
+          Sign Up
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.googleButton, { backgroundColor: themedColors.accent }]}
         onPress={() => promptAsync()}
         disabled={!request}
       >
-        <Text style={styles.googleButtonText}>Continue with Google</Text>
-      </TouchableOpacity>
-
-      <View style={styles.loginContainer}>
         <Text
-          style={[styles.loginText, colorScheme === "dark" && styles.darkText]}
+          style={[styles.googleButtonText, { color: themedColors.background }]}
         >
+          Continue with Google
+        </Text>
+      </TouchableOpacity>
+      <View style={styles.loginContainer}>
+        <Text style={[styles.loginText, { color: themedColors.text }]}>
           Already have an account?
         </Text>
         <TouchableOpacity onPress={() => router.push("/login")}>
-          <Text
-            style={[
-              styles.linkText,
-              colorScheme === "dark" && styles.darkLinkText,
-            ]}
-          >
+          <Text style={[styles.linkText, { color: themedColors.primary }]}>
             Login
           </Text>
         </TouchableOpacity>
@@ -138,38 +164,40 @@ export default function SignupScreen() {
   );
 }
 
-// Reuse the same styles from login.tsx or customize as needed
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     padding: 20,
     alignItems: "center",
-    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 24,
-    color: "#000",
   },
   input: {
     height: 40,
     width: "80%",
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
-    color: "#000",
   },
-  darkInput: {
-    borderColor: "#ccc",
-    color: "#000",
+  signupButton: {
+    width: "80%",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 40,
+  },
+  signupButtonText: {
+    fontWeight: "bold",
   },
   googleButton: {
     width: "50%",
-    backgroundColor: "#1f90ff",
     padding: 10,
     borderRadius: 5,
     marginVertical: 8,
@@ -178,7 +206,6 @@ const styles = StyleSheet.create({
     height: 40,
   },
   googleButtonText: {
-    color: "white",
     fontWeight: "bold",
   },
   loginContainer: {
@@ -188,15 +215,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     marginLeft: 5,
-    color: "blue",
   },
-  darkText: {
-    color: "#000",
-  },
-  darkLinkText: {
-    color: "blue",
-  },
-  loginText: {
-    color: "#000",
-  },
+  loginText: {},
 });

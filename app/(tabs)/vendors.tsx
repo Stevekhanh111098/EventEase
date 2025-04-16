@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,15 +7,15 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { useRouter } from "expo-router";
+import { collection, query, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 import { Ionicons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useFocusEffect } from "@react-navigation/native";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function VendorDiscoveryScreen() {
   const router = useRouter();
@@ -103,11 +103,18 @@ export default function VendorDiscoveryScreen() {
     router.push(`/events/vendorDetail?vendorId=${vendorId}`);
   };
 
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
+
   return (
     <ScreenContainer insideTabs={true}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Discover Vendors</Text>
-
+      <View
+        style={[styles.container, { backgroundColor: themedColors.background }]}
+      >
+        <Text style={[styles.title, { color: themedColors.primary }]}>
+          Discover Vendors
+        </Text>
         <DropDownPicker
           open={filterOpen}
           value={filterType}
@@ -115,19 +122,46 @@ export default function VendorDiscoveryScreen() {
           setOpen={setFilterOpen}
           setValue={setFilterType}
           placeholder="Filter by Vendor Type"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
+          style={[
+            styles.dropdown,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
+          dropDownContainerStyle={[
+            styles.dropdownContainer,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
         />
-
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Budget Range"
+          placeholderTextColor={themedColors.text}
           value={filters.budgetRange}
           onChangeText={(text) => handleFilterChange("budgetRange", text)}
         />
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Location"
+          placeholderTextColor={themedColors.text}
           value={filters.location}
           onChangeText={(text) => handleFilterChange("location", text)}
         />
@@ -143,40 +177,66 @@ export default function VendorDiscoveryScreen() {
             }))
           }
           placeholder="Filter by Event Type"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
+          style={[
+            styles.dropdown,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
+          dropDownContainerStyle={[
+            styles.dropdownContainer,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+            },
+          ]}
         />
-
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: themedColors.surface,
+              borderColor: themedColors.border,
+              color: themedColors.text,
+            },
+          ]}
           placeholder="Search Vendors"
+          placeholderTextColor={themedColors.text}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-
         <FlatList
           data={filteredVendors}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => handleVendorClick(item.id)}
-              style={styles.vendorCard}
+              style={[
+                styles.vendorCard,
+                { backgroundColor: themedColors.surface },
+              ]}
             >
-              <Text style={styles.vendorName}>{item.name}</Text>
-              <Text style={styles.vendorDetail}>Type: {item.type}</Text>
-              <Text style={styles.vendorDetail}>
+              <Text style={[styles.vendorName, { color: themedColors.text }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
+                Type: {item.type}
+              </Text>
+              <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
                 Budget: {item.budgetRange}
               </Text>
-              <Text style={styles.vendorDetail}>Rating: {item.rating} ⭐</Text>
+              <Text style={[styles.vendorDetail, { color: themedColors.text }]}>
+                Rating: {item.rating} ⭐
+              </Text>
             </TouchableOpacity>
           )}
         />
-
         <TouchableOpacity
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: themedColors.primary }]}
           onPress={() => router.push("/events/addVendors")}
         >
-          <Ionicons name="add" size={24} color="white" />
+          <Ionicons name="add" size={24} color={themedColors.background} />
         </TouchableOpacity>
       </View>
     </ScreenContainer>
@@ -184,7 +244,7 @@ export default function VendorDiscoveryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20 },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -192,25 +252,22 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
   },
   vendorCard: {
-    backgroundColor: "#f9f9f9",
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
   },
   vendorName: { fontSize: 18, fontWeight: "bold" },
+  vendorDetail: { fontSize: 14 },
   fab: {
     position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: "#007bff",
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -218,17 +275,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dropdown: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
   },
   dropdownContainer: {
-    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
   },
 });

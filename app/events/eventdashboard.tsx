@@ -28,6 +28,8 @@ import { router } from "expo-router";
 import ScreenContainer from "@/components/ScreenContainer";
 import { Card } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 type EventDetails = {
   name: string;
@@ -70,6 +72,10 @@ export default function EventDashboard() {
   const [selectedVendors, setSelectedVendors] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
   const [rsvpData, setRSVPData] = useState<any[]>([]);
+
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   useEffect(() => {
     if (!eventId || typeof eventId !== "string") return;
@@ -346,23 +352,45 @@ export default function EventDashboard() {
   };
 
   return (
-    <ScreenContainer insideTabs={false}>
+    <ScreenContainer
+      insideTabs={false}
+      style={{ backgroundColor: themedColors.background }}
+    >
       <ScrollView nestedScrollEnabled={true}>
-        <View style={styles.container}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: themedColors.background },
+          ]}
+        >
           {eventDetails && (
-            <Card style={styles.card}>
+            <Card
+              style={[styles.card, { backgroundColor: themedColors.surface }]}
+            >
               <View>
-                <Text style={styles.title}>{eventDetails.name}</Text>
-                <Text>Date: {eventDetails.date}</Text>
-                <Text>Location: {eventDetails.location}</Text>
-                <Text>Budget: ${eventDetails.budget}</Text>
+                <Text style={[styles.title, { color: themedColors.primary }]}>
+                  {eventDetails.name}
+                </Text>
+                <Text style={{ color: themedColors.text }}>
+                  Date: {eventDetails.date}
+                </Text>
+                <Text style={{ color: themedColors.text }}>
+                  Location: {eventDetails.location}
+                </Text>
+                <Text style={{ color: themedColors.text }}>
+                  Budget: ${eventDetails.budget}
+                </Text>
               </View>
             </Card>
           )}
 
-          <Card style={styles.card}>
-            <Text style={styles.subtitle}>Guest List</Text>
-            <Text>
+          <Card
+            style={[styles.card, { backgroundColor: themedColors.surface }]}
+          >
+            <Text style={[styles.subtitle, { color: themedColors.primary }]}>
+              Guest List
+            </Text>
+            <Text style={{ color: themedColors.text }}>
               {guestList
                 .filter((guest) => guest.rsvp === "Yes")
                 .map((guest) => guest.name)
@@ -370,63 +398,117 @@ export default function EventDashboard() {
               are coming.
             </Text>
             {guestList.map((item, index) => (
-              <View key={index} style={styles.guestItem}>
-                <Text>{item.name}</Text>
-                <Text>RSVP: {item.rsvp}</Text>
-                <Text>Meal: {item.meal}</Text>
-                <Text>VIP: {item.vip ? "Yes" : "No"}</Text>
+              <View
+                key={index}
+                style={[
+                  styles.guestItem,
+                  { backgroundColor: themedColors.background },
+                ]}
+              >
+                <Text style={{ color: themedColors.text }}>{item.name}</Text>
+                <Text style={{ color: themedColors.text }}>
+                  RSVP: {item.rsvp}
+                </Text>
+                <Text style={{ color: themedColors.text }}>
+                  Meal: {item.meal}
+                </Text>
+                <Text style={{ color: themedColors.text }}>
+                  VIP: {item.vip ? "Yes" : "No"}
+                </Text>
               </View>
             ))}
             <TouchableOpacity
               onPress={navigateToAddGuest}
-              style={styles.addButton}
+              style={[
+                styles.addButton,
+                { backgroundColor: themedColors.primary },
+              ]}
             >
-              <Text style={styles.buttonText}>Add Guest</Text>
+              <Text
+                style={[styles.buttonText, { color: themedColors.background }]}
+              >
+                Add Guest
+              </Text>
             </TouchableOpacity>
           </Card>
 
-          <Card style={styles.card}>
-            <Text style={styles.subtitle}>Budget Overview</Text>
-            <Text>Total Budget: ${totalBudget}</Text>
-            <Text>Total Spent: ${totalSpent}</Text>
-            <Text>Remaining Budget: ${remainingBudget}</Text>
+          <Card
+            style={[styles.card, { backgroundColor: themedColors.surface }]}
+          >
+            <Text style={[styles.subtitle, { color: themedColors.primary }]}>
+              Budget Overview
+            </Text>
+            <Text style={{ color: themedColors.text }}>
+              Total Budget: ${totalBudget}
+            </Text>
+            <Text style={{ color: themedColors.text }}>
+              Total Spent: ${totalSpent}
+            </Text>
+            <Text style={{ color: themedColors.text }}>
+              Remaining Budget: ${remainingBudget}
+            </Text>
             <ProgressBar
               progress={progress}
-              color="#007AFF"
+              color={themedColors.primary}
               style={styles.progressBar}
             />
             <PieChart
-              data={pieChartItems}
+              data={pieChartItems.map((item, idx) => ({
+                ...item,
+                color: themedColors.brandColors
+                  ? themedColors.brandColors[
+                      idx % themedColors.brandColors.length
+                    ]
+                  : themedColors.accent,
+                textColor: themedColors.text,
+              }))}
               radius={100}
               showText={true}
-              textColor="black"
+              textColor={themedColors.text}
               textSize={12}
               focusOnPress={true}
               labelsPosition="mid"
               strokeWidth={1}
-              strokeColor="black"
+              strokeColor={themedColors.border}
             />
             <TouchableOpacity
               onPress={navigateToAddExpense}
-              style={styles.addButton}
+              style={[
+                styles.addButton,
+                { backgroundColor: themedColors.primary },
+              ]}
             >
-              <Text style={styles.buttonText}>Add Expense</Text>
+              <Text
+                style={[styles.buttonText, { color: themedColors.background }]}
+              >
+                Add Expense
+              </Text>
             </TouchableOpacity>
           </Card>
 
-          <Card style={styles.card}>
-            <Text style={styles.subtitle}>Task List</Text>
+          <Card
+            style={[styles.card, { backgroundColor: themedColors.surface }]}
+          >
+            <Text style={[styles.subtitle, { color: themedColors.primary }]}>
+              Task List
+            </Text>
             {tasks.map((task, index) => (
-              <View key={index} style={styles.taskItem}>
-                <Text>{task.title}</Text>
-                <Text>
+              <View
+                key={index}
+                style={[
+                  styles.taskItem,
+                  { backgroundColor: themedColors.background },
+                ]}
+              >
+                <Text style={{ color: themedColors.text }}>{task.title}</Text>
+                <Text style={{ color: themedColors.text }}>
                   Deadline:{" "}
                   {task.deadline && task.deadline.toDate
                     ? format(task.deadline.toDate(), "MMM dd, yyyy")
                     : "N/A"}
                 </Text>
                 <View style={styles.taskDetailsContainer}>
-                  <Text>
+                  <Text style={{ color: themedColors.text }}>
                     Status: {task.isCompleted ? "Completed" : "Pending"}
                   </Text>
                   <View
@@ -455,7 +537,7 @@ export default function EventDashboard() {
                         <MaterialIcons
                           name="check-circle"
                           size={32}
-                          color="#4CAF50"
+                          color={themedColors.primary}
                         />
                       </TouchableOpacity>
                     )}
@@ -469,14 +551,18 @@ export default function EventDashboard() {
                       }}
                       style={styles.iconButton}
                     >
-                      <MaterialIcons name="delete" size={32} color="#FF3B30" />
+                      <MaterialIcons
+                        name="delete"
+                        size={32}
+                        color={themedColors.accent}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
               </View>
             ))}
             <View style={styles.progressContainer}>
-              <Text>Task Progress</Text>
+              <Text style={{ color: themedColors.text }}>Task Progress</Text>
               <ProgressBar
                 progress={
                   tasks.length > 0
@@ -484,45 +570,82 @@ export default function EventDashboard() {
                       tasks.length
                     : 0
                 }
-                color="#007AFF"
+                color={themedColors.primary}
                 style={styles.progressBar}
               />
-              <Text>
+              <Text style={{ color: themedColors.text }}>
                 {tasks.filter((task) => task.isCompleted).length} /{" "}
                 {tasks.length} tasks completed
               </Text>
             </View>
             <TouchableOpacity
               onPress={navigateToAddTask}
-              style={styles.addButton}
+              style={[
+                styles.addButton,
+                { backgroundColor: themedColors.primary },
+              ]}
             >
-              <Text style={styles.buttonText}>Add Task</Text>
+              <Text
+                style={[styles.buttonText, { color: themedColors.background }]}
+              >
+                Add Task
+              </Text>
             </TouchableOpacity>
           </Card>
 
-          <Card style={styles.card}>
-            <Text style={styles.subtitle}>Selected Vendors</Text>
+          <Card
+            style={[styles.card, { backgroundColor: themedColors.surface }]}
+          >
+            <Text style={[styles.subtitle, { color: themedColors.primary }]}>
+              Selected Vendors
+            </Text>
             {selectedVendors.length === 0 && (
-              <Text>No vendors selected for this event.</Text>
+              <Text style={{ color: themedColors.text }}>
+                No vendors selected for this event.
+              </Text>
             )}
             {selectedVendors.map((vendor, index) => (
-              <View key={index} style={styles.vendorItem}>
-                <Text>{vendor.name}</Text>
-                <Text>Status: Booked</Text>
+              <View
+                key={index}
+                style={[
+                  styles.vendorItem,
+                  { backgroundColor: themedColors.background },
+                ]}
+              >
+                <Text style={{ color: themedColors.text }}>{vendor.name}</Text>
+                <Text style={{ color: themedColors.text }}>
+                  Status: Booked
+                </Text>
                 <TouchableOpacity
                   onPress={() => handleRemoveVendor(vendor.id)}
-                  style={styles.removeButton}
+                  style={[
+                    styles.removeButton,
+                    { backgroundColor: themedColors.accent },
+                  ]}
                 >
-                  <Text style={styles.buttonText}>Remove</Text>
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      { color: themedColors.background },
+                    ]}
+                  >
+                    Remove
+                  </Text>
                 </TouchableOpacity>
               </View>
             ))}
-
             <TouchableOpacity
               onPress={() => handleSelectVendors(eventId)}
-              style={styles.selectVendorsButton}
+              style={[
+                styles.selectVendorsButton,
+                { backgroundColor: themedColors.primary },
+              ]}
             >
-              <Text style={styles.buttonText}>Select Vendors</Text>
+              <Text
+                style={[styles.buttonText, { color: themedColors.background }]}
+              >
+                Select Vendors
+              </Text>
             </TouchableOpacity>
           </Card>
         </View>
@@ -532,7 +655,7 @@ export default function EventDashboard() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
   subtitle: {
     fontSize: 18,
@@ -549,19 +672,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   guestItem: {
-    backgroundColor: "#f9f9f9",
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
   },
   removeButton: {
-    backgroundColor: "#FF3B30",
     padding: 5,
     borderRadius: 5,
     marginTop: 5,
   },
   addButton: {
-    backgroundColor: "#007AFF",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
@@ -572,7 +692,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 10,
   },
-  buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  buttonText: { textAlign: "center", fontWeight: "bold" },
   progressBar: { height: 10, borderRadius: 5, marginTop: 10 },
   expenseItem: {
     backgroundColor: "#f9f9f9",
@@ -581,7 +701,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   taskItem: {
-    backgroundColor: "#f9f9f9",
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
@@ -613,7 +732,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   vendorItem: {
-    backgroundColor: "#f9f9f9",
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
@@ -648,7 +766,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   selectVendorsButton: {
-    backgroundColor: "#007AFF",
     padding: 15,
     borderRadius: 10,
     marginTop: 20,

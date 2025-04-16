@@ -6,17 +6,22 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 import { useAuth } from "@/hooks/useAuth";
+import { Colors } from "@/constants/Colors";
 
 export default function InvitationsScreen() {
   const [invitations, setInvitations] = useState([]);
   const router = useRouter();
   const { user } = useAuth();
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
 
   useEffect(() => {
     const fetchInvitations = async (email) => {
@@ -50,20 +55,38 @@ export default function InvitationsScreen() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.invitationItem}
+      style={[styles.invitationItem, { backgroundColor: themedColors.surface }]}
       onPress={() => handleRSVP(item)}
     >
-      <Text style={styles.invitationText}>Event ID: {item.eventId}</Text>
-      <Text style={styles.invitationText}>Guest Email: {item.email}</Text>
+      <Text style={[styles.invitationText, { color: themedColors.text }]}>
+        Event ID: {item.eventId}
+      </Text>
+      <Text style={[styles.invitationText, { color: themedColors.text }]}>
+        Guest Email: {item.email}
+      </Text>
     </TouchableOpacity>
   );
 
   return (
-    <ScreenContainer insideTabs={true}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Your Invitations</Text>
+    <ScreenContainer
+      insideTabs={true}
+      style={{ backgroundColor: themedColors.background }}
+    >
+      <View
+        style={[styles.container, { backgroundColor: themedColors.background }]}
+      >
+        <Text style={[styles.title, { color: themedColors.primary }]}>
+          Your Invitations
+        </Text>
         {invitations.length === 0 ? (
-          <Text style={styles.noInvitationsText}>No invitations found.</Text>
+          <Text
+            style={[
+              styles.noInvitationsText,
+              { color: themedColors.secondary },
+            ]}
+          >
+            No invitations found.
+          </Text>
         ) : (
           <FlatList
             data={invitations}
@@ -81,7 +104,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingVertical: 30,
-    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
@@ -92,17 +114,14 @@ const styles = StyleSheet.create({
   invitationItem: {
     padding: 15,
     borderRadius: 10,
-    backgroundColor: "#f9f9f9",
     marginBottom: 10,
     elevation: 2,
   },
   invitationText: {
     fontSize: 16,
-    color: "#333",
   },
   noInvitationsText: {
     fontSize: 16,
-    color: "gray",
     textAlign: "center",
     marginTop: 20,
   },

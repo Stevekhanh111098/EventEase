@@ -12,6 +12,8 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 import DropDownPicker from "react-native-dropdown-picker";
+import { useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function SelectVendorScreen() {
   const router = useRouter();
@@ -63,6 +65,10 @@ export default function SelectVendorScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const themedColors = Colors[theme];
+
   useEffect(() => {
     const fetchVendors = async () => {
       const vendorQuery = query(collection(db, "vendors"));
@@ -98,8 +104,12 @@ export default function SelectVendorScreen() {
 
   return (
     <ScreenContainer insideTabs={false}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Discover Vendors</Text>
+      <View
+        style={[styles.container, { backgroundColor: themedColors.background }]}
+      >
+        <Text style={[styles.title, { color: themedColors.primary }]}>
+          Discover Vendors
+        </Text>
 
         <DropDownPicker
           open={filterOpen}
@@ -153,14 +163,29 @@ export default function SelectVendorScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => handleVendorClick(item.id)}
-              style={styles.vendorCard}
+              style={[
+                styles.vendorCard,
+                { backgroundColor: themedColors.surface },
+              ]}
             >
-              <Text style={styles.vendorName}>{item.name}</Text>
-              <Text style={styles.vendorDetail}>Type: {item.type}</Text>
-              <Text style={styles.vendorDetail}>
+              <Text style={[styles.vendorName, { color: themedColors.text }]}>
+                {item.name}
+              </Text>
+              <Text
+                style={[styles.vendorDetail, { color: themedColors.text }]}
+              >
+                Type: {item.type}
+              </Text>
+              <Text
+                style={[styles.vendorDetail, { color: themedColors.text }]}
+              >
                 Budget: {item.budgetRange}
               </Text>
-              <Text style={styles.vendorDetail}>Rating: {item.rating} ⭐</Text>
+              <Text
+                style={[styles.vendorDetail, { color: themedColors.text }]}
+              >
+                Rating: {item.rating} ⭐
+              </Text>
             </TouchableOpacity>
           )}
         />
@@ -170,7 +195,7 @@ export default function SelectVendorScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20 },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -186,7 +211,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   vendorCard: {
-    backgroundColor: "#f9f9f9",
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
@@ -217,4 +241,5 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
   },
+  vendorDetail: { fontSize: 14 },
 });
