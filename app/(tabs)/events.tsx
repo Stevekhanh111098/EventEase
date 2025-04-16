@@ -29,7 +29,7 @@ import ScreenContainer from "@/components/ScreenContainer";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Card } from "react-native-paper";
 import { format } from "date-fns";
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 
 type EventItem = {
   id: string;
@@ -88,9 +88,16 @@ export default function EventsScreen() {
     });
 
     return () => {
-      if(unsubscribe) unsubscribe();
+      if (unsubscribe) unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [router]);
 
   const handleEdit = (event: EventItem) => {
     setCurrentlyEditingId(event.id);
@@ -154,7 +161,6 @@ export default function EventsScreen() {
         Alert.alert("Logout", "You have been logged out.", [
           {
             text: "OK",
-            onPress: () => router.push("/login"),
           },
         ]);
       })

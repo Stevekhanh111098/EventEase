@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import { useAuth } from "@/hooks/useAuth";
 
 // Required for web auth
 WebBrowser.maybeCompleteAuthSession();
@@ -24,15 +25,14 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const user = auth.currentUser;
     if (user) {
-      // Auto-login if the user is already authenticated
-      Alert.alert("Welcome back", `${user.displayName} is auto-logged in!`);
-      router.push("/(tabs)/events");
+      Alert.alert("Welcome back", ` ${user.email}!`);
+      router.replace("/(tabs)/events");
     }
-  });
+  }, [user]);
 
   // Google Auth Request
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -52,7 +52,7 @@ export default function LoginScreen() {
       const credential = GoogleAuthProvider.credential(id_token);
       signInWithCredential(auth, credential)
         .then(() => {
-          router.push("/(tabs)/events");
+          router.replace("/(tabs)/events");
         })
         .catch((error) => {
           Alert.alert("Authentication Error", error.message);
@@ -68,8 +68,6 @@ export default function LoginScreen() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      Alert.alert("Success", "Login successful!");
-      router.push("/(tabs)/events");
     } catch (error) {
       console.error("Login failed:", error);
       Alert.alert("Error", "Login failed. Please try again.");
@@ -175,7 +173,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   googleButton: {
-    width: "30%",
+    width: "50%",
     backgroundColor: "#1f90ff",
     padding: 10,
     borderRadius: 5,

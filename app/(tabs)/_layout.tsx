@@ -6,9 +6,17 @@ import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useAuth } from "@/hooks/useAuth";
+import { Redirect, Stack } from "expo-router";
 
-export default function TabLayout() {
+export default function TabsLayout() {
   const colorScheme = useColorScheme();
+  const { user, loading } = useAuth();
+
+  console.log("User in TabsLayout:", user);
+  console.log("Loading in TabsLayout:", loading);
+  if (loading) return null;
+  if (!user) return <Redirect href="/login" />;
 
   return (
     <Tabs

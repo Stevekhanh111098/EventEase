@@ -9,8 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db, auth } from "@/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 
 export default function InvitationsScreen() {
@@ -31,14 +30,10 @@ export default function InvitationsScreen() {
       setInvitations(fetchedInvitations);
     };
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        fetchInvitations(user.email);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+    if (user) {
+      fetchInvitations(user.email);
+    }
+  }, [router, user]);
 
   const handleRSVP = (invitation) => {
     router.push({
