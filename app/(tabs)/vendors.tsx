@@ -13,6 +13,7 @@ import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
 import { Ionicons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function VendorDiscoveryScreen() {
   const router = useRouter();
@@ -63,19 +64,22 @@ export default function VendorDiscoveryScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const fetchVendors = async () => {
-      const vendorQuery = query(collection(db, "vendors"));
-      const snapshot = await getDocs(vendorQuery);
-      const fetchedVendors = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setVendors(fetchedVendors);
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchVendors = async () => {
+        const vendorQuery = query(collection(db, "vendors"));
+        const snapshot = await getDocs(vendorQuery);
+        const fetchedVendors = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setVendors(fetchedVendors);
+        console.log("Fetched vendors:", fetchedVendors);
+      };
 
-    fetchVendors();
-  }, []);
+      fetchVendors();
+    }, [])
+  );
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

@@ -22,7 +22,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase";
 import { ProgressBar } from "react-native-paper";
-import { PieChart } from "react-native-chart-kit";
+import { PieChart } from "react-native-gifted-charts";
 import { format } from "date-fns";
 import { router } from "expo-router";
 import ScreenContainer from "@/components/ScreenContainer";
@@ -325,12 +325,11 @@ export default function EventDashboard() {
     acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
     return acc;
   }, {});
-  const pieChartData = Object.keys(categoryData).map((category) => ({
-    name: category,
-    amount: categoryData[category],
-    color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 15,
+  const pieChartItems = Object.keys(categoryData).map((category) => ({
+    text: category + " - $" + categoryData[category],
+    value: categoryData[category],
+    // color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+    textColor: "#000000",
   }));
 
   const progress = totalBudget > 0 ? totalSpent / totalBudget : 0;
@@ -363,11 +362,11 @@ export default function EventDashboard() {
 
           <Card style={styles.card}>
             <Text style={styles.subtitle}>Guest List</Text>
-            <Text style={styles.summaryText}>
+            <Text>
               {guestList
                 .filter((guest) => guest.rsvp === "Yes")
                 .map((guest) => guest.name)
-                .join(", ") || "No guests are coming"}{" "}
+                .join(", ") || "No guests"}{" "}
               are coming.
             </Text>
             {guestList.map((item, index) => (
@@ -397,19 +396,15 @@ export default function EventDashboard() {
               style={styles.progressBar}
             />
             <PieChart
-              data={pieChartData}
-              width={300}
-              height={220}
-              chartConfig={{
-                backgroundColor: "#fff",
-                backgroundGradientFrom: "#fff",
-                backgroundGradientTo: "#fff",
-                color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
-              }}
-              accessor="amount"
-              backgroundColor="transparent"
-              paddingLeft="15"
-              absolute
+              data={pieChartItems}
+              radius={100}
+              showText={true}
+              textColor="black"
+              textSize={12}
+              focusOnPress={true}
+              labelsPosition="mid"
+              strokeWidth={1}
+              strokeColor="black"
             />
             <TouchableOpacity
               onPress={navigateToAddExpense}
