@@ -11,10 +11,12 @@ import { useRouter } from "expo-router";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import ScreenContainer from "@/components/ScreenContainer";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function InvitationsScreen() {
   const [invitations, setInvitations] = useState([]);
   const router = useRouter();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchInvitations = async (email) => {
