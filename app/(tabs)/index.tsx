@@ -9,7 +9,7 @@ export default function HomeScreen() {
 
   return (
     <ImageBackground
-      source={require('../../logo/welcome_photo.jpg')} // Ensure the path is correct
+      source={require('../../photo/welcome_photo.jpg')} // Ensure the path is correct
       style={styles.imageContainer}
       resizeMode="cover" // Use "cover" or "contain"
     >
@@ -22,7 +22,7 @@ export default function HomeScreen() {
           {/* User Profile Icon */}
           <TouchableOpacity onPress={() => router.push("/profolio")} style={styles.profileButton}>
             <Image
-              source={require('../../logo/logo-color.png')}
+              source={require('../../photo/logo-color.png')}
               style={styles.profileIcon}
             />
           </TouchableOpacity>

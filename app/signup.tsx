@@ -19,6 +19,7 @@ export default function SignupScreen() {
   // Google Auth Request (same config as login)
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId: '903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com',
+    androidClientId: 'YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com',
     webClientId: '903802502171-d3j6obe2jidhjvhrsuoha7e2m7af0s8u.apps.googleusercontent.com',
   });
 

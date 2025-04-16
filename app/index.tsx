@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
+import CustomText from "../components/customText"; // Import CustomText
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -8,37 +9,31 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       {/* 📸 70% Image Section */}
-      <ImageBackground source={require("../logo/welcome_photo.jpg")} style={styles.imageContainer} resizeMode="cover">
+      <ImageBackground source={require("../photo/landing.jpg")} style={styles.imageContainer} resizeMode="cover">
         <View style={styles.overlay} />
 
         {/* Logo & App Name */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>E</Text>
+            <CustomText style={styles.logoText}>E</CustomText>
           </View>
-          <Text style={styles.logoTitle}>EventEase</Text>
+          <CustomText style={styles.logoTitle}>EventEase</CustomText>
         </View>
 
         {/* Welcome Message */}
-        <Text style={styles.title}>Welcome to EventEase!</Text>
-        <Text style={styles.subtitle}>
+        <CustomText style={styles.title}>Welcome to EventEase!</CustomText>
+        <CustomText style={styles.subtitle}>
           Create, Organize, and Manage your Events with Ease.
-        </Text>
+        </CustomText>
       </ImageBackground>
 
-      {/* 📌 30% Bottom Login Section with Curved Top */}
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/login")}>
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.secondaryButton]}
-          onPress={() => router.push("/signup")}
-        >
-          <Text style={[styles.buttonText, styles.secondaryButtonText]}>Create an account</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Text Button */}
+      <TouchableOpacity
+        style={styles.arrowButton}
+        onPress={() => router.push("/login")} // Navigate to the login page
+      >
+        <CustomText style={styles.buttonText}>Let's plan smarter. Stress less.</CustomText>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -56,12 +51,13 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.3)", // Dark overlay for readability
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Lighter overlay for a brighter background
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: -10,
+    marginTop: -80, // Move the header up
   },
   logoContainer: {
     width: 50,
@@ -75,59 +71,53 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#004D4D",
+    color: "#2B2B2B",
   },
   logoTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#FFF",
+    color: "#2B2B2B",
+    textShadowColor: "rgba(0, 0, 0, 0.1)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#FFF",
+    color: "#2B2B2B",
     textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.1)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    marginTop: 20, // Move the title up
   },
   subtitle: {
-    fontSize: 15,
-    color: "#DDD",
+    fontSize: 20,
+    color: "#2B2B2B",
     textAlign: "center",
     paddingHorizontal: 20,
+    textShadowColor: "rgba(0, 0, 0, 0.1)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
-  bottomContainer: {
-    flex: 3, // 30% of the screen
-    backgroundColor: "#E0F2F1",
-    borderTopLeftRadius: 30, //  More pronounced curve
-    borderTopRightRadius: 30, //  More pronounced curve
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    width: "100%",
-    shadowColor: "#000", // Soft shadow for elevation
-    shadowOffset: { width: 0, height: -3 },
+  arrowButton: {
+    position: "absolute",
+    bottom: 30, // Position near the bottom
+    right: 30, // Position near the right edge
+    backgroundColor: "#C1F0F0", // Light gray background for the box
+    paddingVertical: 10, // Vertical padding inside the box
+    paddingHorizontal: 15, // Horizontal padding inside the box
+    borderRadius: 20, // Rounded corners for the box
+    shadowColor: "#000", // Shadow for the box
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5, //  Shadow for Android
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginVertical: 8,
-    width: "80%",
-    alignItems: "center",
+    shadowRadius: 4,
+    elevation: 3, // Shadow for Android
   },
   buttonText: {
-    color: "#FFF",
     fontSize: 16,
     fontWeight: "bold",
-  },
-  secondaryButton: {
-    backgroundColor: "#E0E0E0",
-  },
-  secondaryButtonText: {
-    color: "#333",
+    color: "#2B8D8D", // Blue color for the text
+    textAlign: "center",
   },
 });
