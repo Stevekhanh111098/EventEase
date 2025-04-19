@@ -9,7 +9,7 @@ export default function HomeScreen() {
 
   return (
     <ImageBackground
-      source={require('../../photo/welcome_photo.jpg')} // Ensure the path is correct
+      source={require('../../photo/background/blueTool.jpg')} // Ensure the path is correct
       style={styles.imageContainer}
       resizeMode="cover" // Use "cover" or "contain"
     >

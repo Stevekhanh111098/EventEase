@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-import CustomText from '../components/customText';
+import CustomText from '../components/CustomText';
 
 // Required for web auth
 WebBrowser.maybeCompleteAuthSession();
@@ -57,7 +57,7 @@ export default function LoginScreen() {
 
   return (
     <ImageBackground
-      source={require("../photo/blueBG.jpg")} // Add your background image here
+      source={require("../photo/background/blueBG.jpg")} // Add your background image here
       style={styles.background}
       resizeMode="cover"
     >

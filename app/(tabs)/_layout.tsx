@@ -13,7 +13,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#A259FF',
+        tabBarInactiveTintColor: '#8E8E93',
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,

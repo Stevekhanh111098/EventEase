@@ -1,182 +1,152 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet, Alert, Platform, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
+import { View, TextInput, Button, Text, StyleSheet, Alert, Platform, SafeAreaView, ScrollView, TouchableOpacity, Switch, ImageBackground } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "@/firebase"; // Import Firestore
-import DateTimePicker from '@react-native-community/datetimepicker';
-import moment from 'moment';
+import { db } from "@/firebase";
+import { useRouter } from "expo-router";
+import moment from "moment";
+import { Picker } from "@react-native-picker/picker";
+import { getAuth } from "firebase/auth"; // Import Firebase Auth
 
 export default function CreateEventScreen() {
-  const [step, setStep] = useState(1);
+  return (
+    <ImageBackground
+      source={{ uri: "https://via.placeholder.com/1080x1920" }} // Set the background image
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.header}>Create New Event</Text>
+          </View>
+          <EventForm />
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
+  );
+}
+
+const EventForm = () => {
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
   const [eventLocation, setEventLocation] = useState("");
   const [eventBudget, setEventBudget] = useState("");
   const [description, setDescription] = useState("");
   const [hostedBy, setHostedBy] = useState("");
+  const [eventType, setEventType] = useState("conference");
+  const [customEventType, setCustomEventType] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
   const router = useRouter();
 
-  const handleNext = () => {
-    if (step === 1 && eventName.trim() === "") {
+  const handleCreateEvent = async () => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      Alert.alert("Error", "You must be logged in to create an event.");
+      return;
+    }
+
+    const creatorUid = currentUser.uid;
+    const guestList = [];
+
+    if (eventName.trim() === "") {
       Alert.alert("Error", "Event name is required.");
       return;
     }
-    if (step === 2 && !eventDate) {
+    if (!eventDate) {
       Alert.alert("Error", "Event date is required.");
       return;
     }
-    if (step === 3 && eventLocation.trim() === "") {
+    if (eventLocation.trim() === "") {
       Alert.alert("Error", "Event location is required.");
       return;
     }
-    if (step === 4 && (isNaN(Number(eventBudget)) || Number(eventBudget) <= 0)) {
+    if (isNaN(Number(eventBudget)) || Number(eventBudget) <= 0) {
       Alert.alert("Error", "Please enter a valid budget.");
       return;
     }
-    if (step === 5 && description.trim() === "") {
+    if (description.trim() === "") {
       Alert.alert("Error", "Description is required.");
       return;
     }
-    if (step === 6 && hostedBy.trim() === "") {
+    if (hostedBy.trim() === "") {
       Alert.alert("Error", "Hosted By is required.");
       return;
     }
-    setStep(step + 1);
-  };
-
-  const formatDateForFirestore = (date: Date) => {
-    return moment(date).format('YYYY-MM-DD');
-  };
-
-  const handleCreateEvent = async () => {
-    console.log('Create Event button clicked'); // Debugging log
-    if (!eventBudget || isNaN(Number(eventBudget)) || Number(eventBudget) <= 0) {
-      Alert.alert("Error", "Please enter a budget.");
+    if (eventType === "other" && customEventType.trim() === "") {
+      Alert.alert("Error", "Please enter a custom event type.");
       return;
     }
+
+    const finalEventType = eventType === "other" ? customEventType : eventType;
+
     try {
-      console.log('Saving event to Firestore...');
       const docRef = await addDoc(collection(db, "events"), {
         name: eventName,
-        date: formatDateForFirestore(eventDate),
+        date: moment(eventDate).format("YYYY-MM-DD"),
+        startTime: moment(startTime).format("HH:mm"),
+        endTime: moment(endTime).format("HH:mm"),
         location: eventLocation,
         budget: eventBudget,
         description: description,
         hostedBy: hostedBy,
+        eventType: finalEventType,
         createdAt: new Date(),
+        creatorUid: creatorUid,
+        guestList: guestList,
+        isPrivate: isPrivate,
       });
       Alert.alert("Success", "Event created successfully!");
-      console.log('Event successfully created with ID:', docRef.id);
       router.push("/events");
     } catch (error) {
-      console.error("Firestore Error:", error);
-      Alert.alert("Error", "Failed to create event. Try again.");
+      console.error("Error adding document: ", error);
+      Alert.alert("Error", "Failed to create event.");
     }
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date | undefined) => {
-    const currentDate = selectedDate || eventDate;
-    setShowDatePicker(Platform.OS === 'ios');
-    setEventDate(currentDate);
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create Event (Step {step} of 6)</Text>
-
-      {step === 1 && (
-        <TextInput style={styles.input} placeholder="Event Name" value={eventName} onChangeText={setEventName} />
-      )}
-
-      {step === 2 && (
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="Event Date (MM/DD/YYYY)"
-            value={moment(eventDate).format('MM/DD/YYYY')}
-            editable={false}
-          />
-          <Button title="Pick Date" onPress={() => setShowDatePicker(true)} />
-          {showDatePicker && (
-            <DateTimePicker
-              value={eventDate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-            />
-          )}
-        </View>
-      )}
-
-      {step === 3 && (
-        <TextInput style={styles.input} placeholder="Event Location" value={eventLocation} onChangeText={setEventLocation} />
-      )}
-
-      {step === 4 && (
-        <TextInput
-          style={styles.input}
-          placeholder="Event Budget ($)"
-          keyboardType="numeric"
-          value={eventBudget}
-          onChangeText={setEventBudget}
-        />
-      )}
-
-      {step === 5 && (
-        <TextInput
-          style={styles.input}
-          placeholder="Description"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-      )}
-
-      {step === 6 && (
-        <TextInput style={styles.input} placeholder="Hosted By" value={hostedBy} onChangeText={setHostedBy} />
-      )}
-
-      <View style={styles.buttonContainer}>
-        {step > 1 && <Button title="Back" onPress={() => setStep(step - 1)} />}
-        {step < 6 ? (
-          <Button title="Next" onPress={handleNext} />
-        ) : (
-          <Button title="Create Event" onPress={handleCreateEvent} />
-        )}
-      </View>
+    <View style={styles.formContainer}>
+      {/* Form Fields */}
+      {/* Add your form fields here */}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
   container: {
     flex: 1,
+    backgroundColor: "transparent", // Make the container transparent to show the background
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
-    padding: 20,
     alignItems: "center",
-    backgroundColor: '#fff', // Always white background
+    padding: 20,
   },
-  title: {
-    fontSize: 22,
+  headerContainer: {
+    paddingTop: 40,
+    paddingBottom: 25,
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  header: {
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
-    color: '#000', // Always black text
+    color: "#000",
   },
-  input: {
-    height: 40,
+  formContainer: {
     width: "100%",
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    color: '#000', // Always black text
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginTop: 10,
+    maxWidth: 500,
   },
 });

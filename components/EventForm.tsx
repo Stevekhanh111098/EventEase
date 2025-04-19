@@ -15,6 +15,7 @@ import { db } from "@/firebase";
 import { addDoc, updateDoc, doc, collection } from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
+import { Picker } from "@react-native-picker/picker";
 
 const EventForm = () => {
   const router = useRouter();

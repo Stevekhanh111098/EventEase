@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
-import CustomText from "../components/customText"; // Import CustomText
+import CustomText from "../components/CustomText"; // Import CustomText
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -9,7 +9,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       {/* 📸 70% Image Section */}
-      <ImageBackground source={require("../photo/landing.jpg")} style={styles.imageContainer} resizeMode="cover">
+      <ImageBackground source={require("../photo/background/landing.jpg")} style={styles.imageContainer} resizeMode="cover">
         <View style={styles.overlay} />
 
         {/* Logo & App Name */}

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  ImageBackground,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -39,12 +40,16 @@ export default function EventsScreen() {
   const [editedEvent, setEditedEvent] = useState<Partial<EventItem>>({});
   const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
   const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
   const showStartTimePicker = () => setStartTimePickerVisible(true);
   const hideStartTimePicker = () => setStartTimePickerVisible(false);
 
   const showEndTimePicker = () => setEndTimePickerVisible(true);
   const hideEndTimePicker = () => setEndTimePickerVisible(false);
+
+  const showDatePicker = () => setDatePickerVisible(true);
+  const hideDatePicker = () => setDatePickerVisible(false);
 
   const handleConfirmStartTime = (selectedTime: Date) => {
     setEditedEvent((prev) => ({ ...prev, start: selectedTime.toISOString() }));
@@ -54,6 +59,14 @@ export default function EventsScreen() {
   const handleConfirmEndTime = (selectedTime: Date) => {
     setEditedEvent((prev) => ({ ...prev, end: selectedTime.toISOString() }));
     hideEndTimePicker();
+  };
+
+  const handleConfirmDate = (selectedDate: Date) => {
+    setEditedEvent((prev) => ({
+      ...prev,
+      date: selectedDate.toISOString().split("T")[0], // Extract only the date part
+    }));
+    hideDatePicker();
   };
 
   useEffect(() => {
@@ -138,13 +151,20 @@ export default function EventsScreen() {
               style={styles.input}
               placeholder="Name"
             />
-            <TextInput
-              value={editedEvent.date}
-              onChangeText={(text) =>
-                setEditedEvent((prev) => ({ ...prev, date: text }))
-              }
-              style={styles.input}
-              placeholder="Date"
+            <TouchableOpacity onPress={showDatePicker}>
+              <TextInput
+                value={editedEvent.date || ""}
+                editable={false}
+                style={styles.input}
+                placeholder="Date"
+                pointerEvents="none"
+              />
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="date"
+              onConfirm={handleConfirmDate}
+              onCancel={hideDatePicker}
             />
             <TextInput
               value={editedEvent.location}
@@ -234,31 +254,37 @@ export default function EventsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Event List</Text>
-      {events.length === 0 ? (
-        <Text style={styles.subtitle}>No events found.</Text>
-      ) : (
-        <FlatList
-          data={events}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
+    <ImageBackground
+      source={require("../../photo/background/violetSquare.jpg")}
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Event List</Text>
+        {events.length === 0 ? (
+          <Text style={styles.subtitle}>No events found.</Text>
+        ) : (
+          <FlatList
+            data={events}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContainer}
+          />
+        )}
 
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => router.push("/eventcreation")}
-      >
-        <Ionicons name="add" size={28} color="white" />
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push("/eventcreation")}
+        >
+          <Ionicons name="add" size={28} color="white" />
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  background: { flex: 1 },
+  container: { flex: 1, backgroundColor: "transparent" },
   title: { fontSize: 24, fontWeight: "bold", marginTop: 30, textAlign: "center", color: "#000" },
   subtitle: { fontSize: 16, marginTop: 10, textAlign: "center", color: "gray" },
   listContainer: { padding: 20 },
