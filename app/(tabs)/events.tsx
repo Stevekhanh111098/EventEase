@@ -176,13 +176,15 @@ export default function EventsScreen() {
   const theme = colorScheme === "dark" ? "dark" : "light";
   const themedColors = Colors[theme];
 
+  const formatTime = (time: string | undefined) => {
+    if (!time) return "N/A"; // Handle missing or undefined time
+    const date = new Date(time);
+    if (isNaN(date.getTime())) return "N/A"; // Handle invalid date
+    return format(date, "hh:mm a");
+  };
+
   const renderItem = ({ item }: { item: EventItem }) => {
     const isEditing = currentlyEditingId === item.id;
-
-    const formatTime = (time: string) => {
-      const date = new Date(time);
-      return format(date, "hh:mm a");
-    };
 
     return (
       <Card

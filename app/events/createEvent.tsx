@@ -54,6 +54,9 @@ const EventForm = () => {
   const [hostedBy, setHostedBy] = useState("");
   const [customEventType, setCustomEventType] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
+  const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -127,6 +130,7 @@ const EventForm = () => {
     if (selectedDate) {
       setEventDate(selectedDate);
     }
+    setDatePickerVisible(false); // Hide the picker after selection
   };
 
   const onStartTimeChange = (event: any, selectedTime?: Date) => {
@@ -138,6 +142,7 @@ const EventForm = () => {
         setEndTime(newEndTime);
       }
     }
+    setStartTimePickerVisible(false); // Hide the picker after selection
   };
 
   const onEndTimeChange = (event: any, selectedTime?: Date) => {
@@ -151,6 +156,7 @@ const EventForm = () => {
         setEndTime(selectedTime);
       }
     }
+    setEndTimePickerVisible(false); // Hide the picker after selection
   };
 
   const colorScheme = useColorScheme();
@@ -185,41 +191,89 @@ const EventForm = () => {
       <Text style={[styles.label, { color: themedColors.primary }]}>
         Event Date
       </Text>
-      <DateTimePicker
-        testID="datePicker"
-        value={eventDate}
-        mode="date"
-        display="default"
-        onChange={onDateChange}
-      />
+      <TouchableOpacity
+        onPress={() => setDatePickerVisible(true)}
+        style={[
+          styles.inputTouchable,
+          {
+            backgroundColor: themedColors.surface,
+            borderColor: themedColors.border,
+          },
+        ]}
+      >
+        <Text style={[styles.inputText, { color: themedColors.text }]}>
+          {eventDate.toDateString()}
+        </Text>
+      </TouchableOpacity>
+      {isDatePickerVisible && (
+        <DateTimePicker
+          testID="datePicker"
+          value={eventDate}
+          mode="date"
+          display="default"
+          onChange={onDateChange}
+        />
+      )}
 
       <View style={styles.rowContainer}>
         <View style={styles.timePickerContainer}>
           <Text style={[styles.label, { color: themedColors.primary }]}>
             Start Time
           </Text>
-          <DateTimePicker
-            testID="startTimePicker"
-            value={startTime}
-            mode="time"
-            display="default"
-            onChange={onStartTimeChange}
-            is24Hour={false}
-          />
+          <TouchableOpacity
+            onPress={() => setStartTimePickerVisible(true)}
+            style={[
+              styles.inputTouchable,
+              {
+                backgroundColor: themedColors.surface,
+                borderColor: themedColors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.inputText, { color: themedColors.text }]}>
+              {startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </Text>
+          </TouchableOpacity>
+          {isStartTimePickerVisible && (
+            <DateTimePicker
+              testID="startTimePicker"
+              value={startTime}
+              mode="time"
+              display="default"
+              onChange={onStartTimeChange}
+              is24Hour={false}
+            />
+          )}
         </View>
 
         <View style={styles.timePickerContainer}>
           <Text style={[styles.label, { color: themedColors.primary }]}>
             End Time
           </Text>
-          <DateTimePicker
-            testID="endTimePicker"
-            value={endTime}
-            mode="time"
-            display="default"
-            onChange={onEndTimeChange}
-            is24Hour={false}
-          />
+          <TouchableOpacity
+            onPress={() => setEndTimePickerVisible(true)}
+            style={[
+              styles.inputTouchable,
+              {
+                backgroundColor: themedColors.surface,
+                borderColor: themedColors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.inputText, { color: themedColors.text }]}>
+              {endTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </Text>
+          </TouchableOpacity>
+          {isEndTimePickerVisible && (
+            <DateTimePicker
+              testID="endTimePicker"
+              value={endTime}
+              mode="time"
+              display="default"
+              onChange={onEndTimeChange}
+              is24Hour={false}
+            />
+          )}
         </View>
       </View>
 
