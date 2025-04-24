@@ -23,6 +23,7 @@ import {
   doc,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
 import { db } from "@/firebase";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -77,7 +78,16 @@ export default function EventsScreen() {
   let unsubscribe: (() => void) | undefined;
 
   useEffect(() => {
-    const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
+    const user = auth.currentUser;
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
+    const q = query(
+      collection(db, "events"),
+      where("creatorUid", "==", user.uid),
+      orderBy("createdAt", "desc")
+    );
 
     unsubscribe = onSnapshot(q, (snapshot) => {
       const fetched: EventItem[] = snapshot.docs.map((doc) => ({
