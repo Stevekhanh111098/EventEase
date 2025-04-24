@@ -99,6 +99,16 @@ export default function VendorDetailScreen() {
         status: "booked",
         notes: "",
       });
+
+      // Add an expense for the vendor
+      await addDoc(collection(db, "expenses"), {
+        eventId,
+        category: vendor?.type || "Vendor",
+        amount: vendor?.budgetRange ? parseFloat(vendor.budgetRange) || 0 : 0,
+        description: `Payment for vendor: ${vendor?.name}`,
+        createdAt: new Date(),
+      });
+
       Alert.alert("Success", "Vendor booked for this event.");
       router.back();
     } catch (error) {
