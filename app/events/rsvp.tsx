@@ -22,7 +22,7 @@ export default function RSVP() {
   const themedColors = Colors[theme];
 
   React.useEffect(() => {
-    const fetchEventName = async () => {
+    const fetchEventNameAndRSVP = async () => {
       try {
         const eventRef = doc(db, "events", eventId);
         const eventDoc = await getDoc(eventRef);
@@ -31,15 +31,23 @@ export default function RSVP() {
         } else {
           console.log("No such event!");
         }
+        // Fetch current RSVP status
+        if (docId) {
+          const guestRef = doc(db, "guestLists", docId);
+          const guestDoc = await getDoc(guestRef);
+          if (guestDoc.exists()) {
+            setRsvpStatus(guestDoc.data().rsvp || "");
+          }
+        }
       } catch (error) {
-        console.error("Error fetching event name:", error);
+        console.error("Error fetching event name or RSVP status:", error);
       }
     };
 
     if (eventId) {
-      fetchEventName();
+      fetchEventNameAndRSVP();
     }
-  }, [eventId]);
+  }, [eventId, docId]);
 
   const handleRSVP = async (status) => {
     try {
@@ -64,6 +72,11 @@ export default function RSVP() {
       <Text style={[styles.subtitle, { color: themedColors.text }]}>
         Event: {eventName}
       </Text>
+      {rsvpStatus ? (
+        <Text style={[styles.subtitle, { color: themedColors.text }]}>
+          Current RSVP: {rsvpStatus}
+        </Text>
+      ) : null}
       <TouchableOpacity
         onPress={() => handleRSVP("Yes")}
         style={[styles.button, { backgroundColor: themedColors.primary }]}
