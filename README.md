@@ -1,64 +1,48 @@
-<<<<<<< HEAD
 # EventEase
 
-# Testing to verify connection
+EventEase is a cross-platform mobile application for seamless event planning and management. Built with React Native and Expo, it enables users to create events, manage guest lists, track budgets, assign tasks, and discover vendors—all in one place. Real-time data sync and authentication are powered by Firebase.
 
-npx create-expo-app@latest
-yarn install
-yarn start
-scan QR code with Expo Go app on Android devices or Camera app on IOS
-=======
-# Welcome to your Expo app 👋
+## Key Features
+- Event creation with step-by-step forms
+- Guest list management with RSVP and meal preferences
+- Budget tracking and expense management
+- Task checklist for event planning
+- Vendor discovery and booking
+- Real-time updates and secure authentication
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Tech Stack
+- React Native & Expo
+- Firebase (Firestore & Auth)
+- Modular, component-based architecture
 
-## Get started
+## Getting Started
 
-Make sure you install Node.js before using it.
+Follow these steps to set up the project locally:
 
-
-1. Install dependencies
-
-   ```bash
-   yarn install
+1. **Clone the repository**
+   ```sh
+   git clone https://github.com/Stevekhanh111098/EventEase.git
+   cd EventEase
    ```
 
-2. Start the app
-
-   ```bash
-    yarn start
+2. **Checkout to the `feat/events` branch**
+   ```sh
+   git checkout feat/events
    ```
 
-In the output, you'll find options to open the app in a
+3. **Install dependencies**
+   ```sh
+   npm install
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+4. **Set up Firebase**
+   - Go to [Firebase Console](https://console.firebase.google.com/), create a new project (or use an existing one).
+   - Add a web app to your Firebase project.
+   - Copy your Firebase config and update the `firebase.ts` file in the project root with your credentials.
+   - Enable Firestore Database and Authentication (Email/Password and Google) in the Firebase console.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
->>>>>>> 9ee102a (Initial commit)
+5. **Run the project**
+   ```sh
+   npx expo start
+   ```
+   - Scan the QR code with Expo Go app on your Android/iOS device, or use an emulator/simulator.
